@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Data>
+  <Error></Error>
+  <Station type="in">
+    <Name>{{ in_name }}</Name>
+    <Lon>{{ in_lon }}</Lon>
+    <Lat>{{ in_lat }}</Lat>
+  </Station>
+  <Station type="out">
+    <Name>{{ out_name }}</Name>
+    <Lon>{{ out_lon }}</Lon>
+    <Lat>{{ out_lat }}</Lat>
+  </Station>
+</Data>

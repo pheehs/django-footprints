@@ -1,0 +1,51 @@
+{% extends "footprints/base.html" %}
+
+{% block title %}TOP{% endblock %}
+{% block head %}
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<meta http-equiv="Content-Script-Type" content="text/javascript" />
+
+<!-- <script src="http://www.google.com/jsapi?key=ABQIAAAA72fdLFPSePsFA0UZlx_TERRhvSFhavBuAieK5eZYb8uCjVY7ZBRmDBPSGErGrPKKiitVNcnkec341A"> </script> -->
+<script src="http://www.google.com/jsapi?key=ABQIAAAA72fdLFPSePsFA0UZlx_TERT2yXp_ZAY8_ufC3CFXhHIE1NvwkxRtKOtuxU_sMTBLwmV8mUUFXX4DbA"> </script>
+<script type="text/javascript" src="/media/ge_control.js"></script>
+<link rel="stylesheet" type="text/css" href="/media/footprints.css">
+{% endblock %}
+
+{% block body %}
+<div id="wrap">
+<div id="header">
+  <h2>Footprints</h2>
+</div>
+<div id="inner">
+  <div id="UHlist">
+    <table border="1">
+      <tr>
+	<th>機器種別</th>
+	<th>利用種別</th>
+	<th>支払い種別</th>
+	<th>入出場種別</th>
+	<th>処理日付</th>
+	<th>残高</th>
+      </tr>
+      {% for uh in history %}
+      <tr bgcolor="#FFFFFF" onmouseover="style.background='#CCCCFF'" onmouseout="style.background='#FFFFFF'" onload="onUHLoad({{ uh.pk }})" onclick="onUHClick({{ uh.pk }})">
+	<td>{{ uh.get_equipment_display }}</td>
+	<td>{{ uh.get_usage_display }}</td>
+	<td>{{ uh.get_payment_display }}</td>
+	<td>{{ uh.get_enter_display }}</td>
+	<td>{{ uh.date }}</td>
+	<td>{{ uh.balance }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+  <div id="GoogleEarth">
+    <div id="map3d"></div>
+    <div id="ge_UI"></div>
+  </div>
+  <div class="clear"><hr /></div>
+</div>
+<div id="footer"></div>
+</div>
+{% endblock %}
+

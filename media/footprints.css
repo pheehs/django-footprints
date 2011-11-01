@@ -1,0 +1,36 @@
+#wrap {
+    margin: 0 auto;
+}
+
+#header {
+    height: 8%;
+}
+#footer {}
+
+#inner {
+    margin: 0 1%;
+    height: 90%;
+}
+
+#UHlist {
+    width: 38%;
+    float: right
+}
+
+#GoogleEarth {
+    width: 60%;
+    float: left;
+}
+
+#map3d {
+    height: 80%;
+}
+
+#ge_UI {
+    height: 20%;
+}
+
+
+
+.clear { clear:both; }
+.clear hr { display:none; }
