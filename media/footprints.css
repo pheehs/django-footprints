@@ -1,3 +1,8 @@
+body {
+    background-color: #000000;
+    color: #FFFFFF;
+}
+
 #wrap {
     margin: 0 auto;
 }
@@ -5,6 +10,16 @@
 #header {
     height: 8%;
 }
+#title {
+    margin-top: 0;
+    float: left;
+}
+#welcome {
+    margin: 1%;
+    float: right;
+    color: #0000FF;
+}
+
 #footer {}
 
 #inner {
@@ -18,18 +33,17 @@
 }
 
 #GoogleEarth {
-    width: 60%;
+    width: 58%;
     float: left;
+    background-color: #2756D1;
+    padding: 1% 1% 0;
 }
-
 #map3d {
-    height: 80%;
+    height: 80%; 
 }
-
-#ge_UI {
-    height: 20%;
+#ge_UI { 
+    height: 20%; 
 }
-
 
 
 .clear { clear:both; }
