@@ -1,13 +1,10 @@
-'use strict';
-// ---------------------
-// ge_control.js
-//
-// --------------------
-
+"use strict";
+/*
+ge_control.js
+/*/
 
 var Placemarks = {};
 var LineStrings = {};
-
 
 function createXMLHttpRequest() {
     if (window.XMLHttpRequest) { // other than IE
@@ -95,11 +92,12 @@ function init() {
 }
 google.setOnLoadCallback(init);
 
-function createPlacemark(name, lon, lat) {
-    var placemark = Placemarks[name + lon + lat];
-    if (placemark == undefined) {
+function createPlacemark(name, coord) {
+    var lplacemark = Placemarks[name + coord[0] + coord[1]];
+
+    if (lplacemark == undefined) {
 	// Create new placemark
-	placemark = ge.createPlacemark('');
+	var placemark = ge.createPlacemark('');
 	placemark.setName(name);
 
 	// Create style map for placemark
@@ -111,151 +109,151 @@ function createPlacemark(name, lon, lat) {
 
 	// Create point
 	var point = ge.createPoint('');
-	point.setLongitude(lon);
-	point.setLatitude(lat);
+	point.setLongitude(coord[0]);
+	point.setLatitude(coord[1]);
 	placemark.setGeometry(point);
 	// Save in Placemarks
-	Placemarks[name + lon + lat] = placemark;
+	Placemarks[name + coord[0] + coord[1]] = [placemark, 0];
+	lplacemark = Placemarks[name + coord[0] + coord[1]];
     }
-    ge.getFeatures().appendChild(placemark);
-
-}
-
-function removePlacemark(name, lon, lat) {
-    var placemark = Placemarks[name + lon + lat];
-    if (placemark == undefined) {
-	alert('Error: placemark(' + name + lon + lat + ') not defined.');
+    if (lplacemark[1] >= 0) {
+	var counter = ++Placemarks[name + coord[0] + coord[1]][1];
+	if (counter == 1) {
+	    ge.getFeatures().appendChild(lplacemark[0]);
+	    return 1;
+	}
     } else {
-	ge.getFeatures().removeChild(placemark);
+	alert('Error: placemark(' + name + coord[0] + coord[1] + ')\'s counter is wrong.');
+	return -1;
     }
+    return 0;
 }
-function createLineString(in_lon, in_lat, out_lon, out_lat) {
-    var linePlacemark = LineStrings['' + in_lon + in_lat + out_lon + out_lat];
+
+function removePlacemark(name, coord) {
+    var lplacemark = Placemarks[name + coord[0] + coord[1]];
+
+    if (lplacemark == undefined) {
+	alert('Error: placemark(' + name + coord[0] + coord[1] + ') not defined.');
+	return -1;
+    } else {
+	if (lplacemark[1] > 0) {
+	    var counter = --Placemarks[name + coord[0] + coord[1]][1];
+	    if (counter == 0) {
+		ge.getFeatures().removeChild(lplacemark[0]);
+		return 1;
+	    }
+	}
+    }
+    return 0;
+}
+
+function createLineString(in_coord, out_coord) {
+    var linePlacemark = LineStrings['' + in_coord[0] + in_coord[1] + out_coord[0] + out_coord[1]];
     if (linePlacemark == undefined) {
 	// Create the placemark
 	linePlacemark = ge.createPlacemark('');
-
+	
 	// Create the LineString; set it to extend down to the ground
 	// and set the altitude mode
 	var lineString = ge.createLineString('');
 	linePlacemark.setGeometry(lineString);
 	lineString.setExtrude(true);
 	lineString.setAltitudeMode(ge.ALTITUDE_CLAMP_TO_GROUND);
-
+	
 	// Add LineString points
-	lineString.getCoordinates().pushLatLngAlt(in_lat, in_lon, 0);
-	lineString.getCoordinates().pushLatLngAlt(out_lat, out_lon, 0);
+	lineString.getCoordinates().pushLatLngAlt(in_coord[1], in_coord[0], 0);
+	lineString.getCoordinates().pushLatLngAlt(out_coord[1], out_coord[0], 0);
 
 	// Create a style and set width and color of line
 	linePlacemark.setStyleSelector(ge.createStyle(''));
 	var lineStyle = linePlacemark.getStyleSelector().getLineStyle();
 	lineStyle.setWidth(5);
 	lineStyle.getColor().set('990000FF'); // aabbggrr format
-
+	
 	// Save in LineStrings
-	LineStrings['' + in_lon + in_lat + out_lon + out_lat] = linePlacemark;
+	LineStrings['' + in_coord[0] + in_coord[1] + out_coord[0] + out_coord[1]] = linePlacemark;
     }
     // Add the feature to Earht
     ge.getFeatures().appendChild(linePlacemark);
 }
 
-function removeLineString(in_lon, in_lat, out_lon, out_lat) {
-    var linePlacemark = LineStrings['' + in_lon + in_lat + out_lon + out_lat];
+function removeLineString(in_coord, out_coord) {
+    var linePlacemark = LineStrings['' + in_coord[0] + in_coord[1] + out_coord[0] + out_coord[1]];
     if (linePlacemark == undefined) {
 	alert('Error: linePlacemark(' + 
-	      in_lon + in_lat + out_lon + out_lat + 
+	      in_coord[0] + in_coord[1] + out_coord[0] + out_coord[1] + 
 	      ') not defined.');
     } else {
 	ge.getFeatures().removeChild(linePlacemark);
     }
 }
 
-function onUHClick(pk) {
-    var uh_tr = document.getElementById('UH_' + pk);
-
+function getUHData(pk, callback) {
     // ajax request
     var request = createXMLHttpRequest();
+    
+    request.onreadystatechange = function () {
+	if (request.readyState == 4 && request.status == 200) {
+	    var xmlData = request.responseXML;
+	    var error = xmlData.getElementsByTagName('Error')[0];
+	    
+	    if (error.childNodes[0]) {
+		alert('DataBaseError:\n' + error.childNodes[0].nodeValue);
+	    }else {
+		var stations = xmlData.getElementsByTagName('Station');
+		
+		for (var i = 0; i < stations.length; i++) {
+		    switch (stations[i].getAttribute('type')) {
+		    case 'in':
+			var in_name = stations[i].getElementsByTagName('Name')[0].childNodes[0].nodeValue;
+			var in_coord = [parseFloat(stations[i].getElementsByTagName('Lon')[0].childNodes[0].nodeValue), 
+					parseFloat(stations[i].getElementsByTagName('Lat')[0].childNodes[0].nodeValue)];
+			break;
+		    case 'out':
+			var out_name = stations[i].getElementsByTagName('Name')[0].childNodes[0].nodeValue;
+			var out_coord = [parseFloat(stations[i].getElementsByTagName('Lon')[0].childNodes[0].nodeValue), 
+					 parseFloat(stations[i].getElementsByTagName('Lat')[0].childNodes[0].nodeValue)];
+			break;
+		    }
+		}
+		callback(in_name, in_coord, out_name, out_coord);
+	    }
+	}
+    }
+    request.open('GET', '/footprints/get_lonlat?uh=' + pk, true);
+    request.send('');
+}
 
+function showBalloon(pk) { }
+
+function onUHClick(pk) {
+    var uh_tr = document.getElementById('UH_' + pk);
+    
     if (uh_tr.getAttribute('bgcolor') == '#365178') {
 	// show on
 	// table tr bgcolor
 	uh_tr.setAttribute('bgcolor', '#2B64FF');
 	uh_tr.setAttribute('onmouseover', "style.background='#2BCEFF'");
 	uh_tr.setAttribute('onmouseout', "style.background='#2B64FF'");
-
+	
 	// ajax
-	request.onreadystatechange = function () {
-	    if (request.readyState == 4 && request.status == 200) {
-		var xmlData = request.responseXML;
-		var error = xmlData.getElementsByTagName('Error')[0];
-
-		if (error.childNodes[0]) {
-		    alert('DataBaseError:\n' + error.childNodes[0].nodeValue);
-		}else {
-		    var stations = xmlData.getElementsByTagName('Station');
-
-		    for (var i = 0; i < stations.length; i++) {
-			switch (stations[i].getAttribute('type')) {
-			case 'in':
-			    var in_name = stations[i].getElementsByTagName('Name')[0].childNodes[0].nodeValue;
-			    var in_lon = parseFloat(stations[i].getElementsByTagName('Lon')[0].childNodes[0].nodeValue);
-			    var in_lat = parseFloat(stations[i].getElementsByTagName('Lat')[0].childNodes[0].nodeValue);
-			    break;
-			case 'out':
-			    var out_name = stations[i].getElementsByTagName('Name')[0].childNodes[0].nodeValue;
-			    var out_lon = parseFloat(stations[i].getElementsByTagName('Lon')[0].childNodes[0].nodeValue);
-			    var out_lat = parseFloat(stations[i].getElementsByTagName('Lat')[0].childNodes[0].nodeValue);
-			    break;
-			}
-		    }
-		    //alert("in_station:"+in_name+"("+in_lon+", "+in_lat+")\nout_station:"+out_name+"("+out_lon+", "+out_lat+")");
-		    createPlacemark(in_name, in_lon, in_lat);
-		    createPlacemark(out_name, out_lon, out_lat);
-		    createLineString(in_lon, in_lat, out_lon, out_lat);
-		}
-	    }
-	}
+	getUHData(pk, function (in_name, in_coord, out_name, out_coord){
+	    createPlacemark(in_name, in_coord);
+	    createPlacemark(out_name, out_coord);
+	    createLineString(in_coord, out_coord);
+	});
     } else if (uh_tr.getAttribute('bgcolor') == '#2B64FF') {
 	// show off
 	// table tr bgcolor
 	uh_tr.setAttribute('bgcolor', '#365178');
 	uh_tr.setAttribute('onmouseover', "style.background='#3577E8'");
 	uh_tr.setAttribute('onmouseout', "style.background='#365178'");
-
+	
 	// ajax
-	request.onreadystatechange = function () {
-	    if (request.readyState == 4 && request.status == 200) {
-		var xmlData = request.responseXML;
-		var error = xmlData.getElementsByTagName('Error')[0];
-
-		if (error.childNodes[0]) {
-		    alert('DataBaseError:\n' + error.childNodes[0].nodeValue);
-		}else {
-		    var stations = xmlData.getElementsByTagName('Station');
-
-		    for (var i = 0; i < stations.length; i++) {
-			switch (stations[i].getAttribute('type')) {
-			case 'in':
-			    var in_name = stations[i].getElementsByTagName('Name')[0].childNodes[0].nodeValue;
-			    var in_lon = parseFloat(stations[i].getElementsByTagName('Lon')[0].childNodes[0].nodeValue);
-			    var in_lat = parseFloat(stations[i].getElementsByTagName('Lat')[0].childNodes[0].nodeValue);
-			    break;
-			case 'out':
-			    var out_name = stations[i].getElementsByTagName('Name')[0].childNodes[0].nodeValue;
-			    var out_lon = parseFloat(stations[i].getElementsByTagName('Lon')[0].childNodes[0].nodeValue);
-			    var out_lat = parseFloat(stations[i].getElementsByTagName('Lat')[0].childNodes[0].nodeValue);
-			    break;
-			}
-		    }
-		    removePlacemark(in_name, in_lon, in_lat);
-		    removePlacemark(out_name, out_lon, out_lat);
-		    removeLineString(in_lon, in_lat, out_lon, out_lat);
-		}
-	    }
-	}
+	getUHData(pk, function (in_name, in_coord, out_name, out_coord){
+	    removePlacemark(in_name, in_coord);
+	    removePlacemark(out_name, out_coord);
+	    removeLineString(in_coord, out_coord);
+	});
     }
-    request.open('GET', '/footprints/get_lonlat?uh=' + pk, true);
-    request.send('');
-
 }
-
