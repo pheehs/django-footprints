@@ -44,7 +44,8 @@ def get_lonlat_view(request):
                                       {"message":"This out_StationCode is wrong."},
                                       mimetype="application/xhtml+xml")
         return render_to_response("footprints/lonlat.xml",
-                                  {"in_name":in_station.station_name,
+                                  {"date":uh.date.strftime("%Y/%m/%d"),
+                                   "in_name":in_station.station_name,
                                    "in_lon":in_station.lon,
                                    "in_lat":in_station.lat,
                                    "out_name":out_station.station_name,

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Data>
   <Error></Error>
+  <Date>{{ date }}</Date>
   <Station type="in">
     <Name>{{ in_name }}</Name>
     <Lon>{{ in_lon }}</Lon>

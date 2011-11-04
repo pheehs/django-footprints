@@ -182,9 +182,6 @@ class UsageHistory(models.Model):
     in_area_code = models.PositiveIntegerField(u"入場地域コード", choices=AREA_CODE)
     out_area_code = models.PositiveIntegerField(u"出場地域コード", choices=AREA_CODE)
 
-    def get_in_station(self):
-        return
-    
     def __unicode__(self):
         return u"UsageHistory(%s)" % self.card.name
 """

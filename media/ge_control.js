@@ -75,7 +75,7 @@ function init() {
     google.earth.createInstance('map3d', initCallback, failureCallback);
 
     addUIHtml('<style type="text/css">' +
-	      '  #progress-wrap { padding-top: 1%; height: 30%; }' +
+	      '  #progress-wrap { padding-top: 3%; height: 30%; }' +
 	      '  #progress-explain { height: 60%; text-align: center;}' +
 	      '  #progress-container { width: 50%; height: 40%; border: 1px solid #ccc; margin: 0 auto;}' +
 	      '  #progress-bar { width: 0; height: 100%; }' +
@@ -92,7 +92,7 @@ function init() {
 }
 google.setOnLoadCallback(init);
 
-function createPlacemark(name, coord) {
+function createPlacemark(pk, name, coord) {
     var lplacemark = Placemarks[name + coord[0] + coord[1]];
 
     if (lplacemark == undefined) {
@@ -113,33 +113,43 @@ function createPlacemark(name, coord) {
 	point.setLatitude(coord[1]);
 	placemark.setGeometry(point);
 	// Save in Placemarks
-	Placemarks[name + coord[0] + coord[1]] = [placemark, 0];
+	Placemarks[name + coord[0] + coord[1]] = [placemark, []];
 	lplacemark = Placemarks[name + coord[0] + coord[1]];
+	// Sort UH_pk list
+	//Placemarks[name + coord[0] + coord[1]][1].sort(getUHData_sort)
     }
-    if (lplacemark[1] >= 0) {
-	var counter = ++Placemarks[name + coord[0] + coord[1]][1];
-	if (counter == 1) {
+    if (lplacemark[1].length >= 0) {
+	Placemarks[name + coord[0] + coord[1]][1].push(pk);
+	if (lplacemark[1].length == 1) {
 	    ge.getFeatures().appendChild(lplacemark[0]);
+
+	    // listen to the click event
+	    google.earth.addEventListener(lplacemark[0], 'click', showBalloon);
 	    return 1;
 	}
     } else {
-	alert('Error: placemark(' + name + coord[0] + coord[1] + ')\'s counter is wrong.');
+	alert('Error: placemark(' + name + ":" + coord[0] + ", " + coord[1] + ')\'s counter is wrong.');
 	return -1;
     }
     return 0;
 }
 
-function removePlacemark(name, coord) {
+function removePlacemark(pk, name, coord) {
     var lplacemark = Placemarks[name + coord[0] + coord[1]];
 
     if (lplacemark == undefined) {
-	alert('Error: placemark(' + name + coord[0] + coord[1] + ') not defined.');
+	alert('Error: placemark(' + name + ":" + coord[0] + ", " + coord[1] + ') not defined.');
 	return -1;
     } else {
-	if (lplacemark[1] > 0) {
-	    var counter = --Placemarks[name + coord[0] + coord[1]][1];
-	    if (counter == 0) {
+	if (lplacemark[1].length > 0) {
+	    var index = lplacemark[1].indexOf(pk);
+	    Placemarks[name + coord[0] + coord[1]][1].splice(index, 1)
+
+	    if (lplacemark[1].length == 0) {
 		ge.getFeatures().removeChild(lplacemark[0]);
+
+		// remove event listener
+		google.earth.removeEventListener(lplacemark[0], 'click', showBalloon);
 		return 1;
 	    }
 	}
@@ -188,7 +198,11 @@ function removeLineString(in_coord, out_coord) {
     }
 }
 
-function getUHData(pk, callback) {
+function getUHData(pk, need_date, callback) {
+    /*
+      need_date(boolean) : if true, add date parameter to callback arguments.
+     */
+    
     // ajax request
     var request = createXMLHttpRequest();
     
@@ -200,6 +214,7 @@ function getUHData(pk, callback) {
 	    if (error.childNodes[0]) {
 		alert('DataBaseError:\n' + error.childNodes[0].nodeValue);
 	    }else {
+		var date = xmlData.getElementsByTagName("Date")[0].childNodes[0].nodeValue;
 		var stations = xmlData.getElementsByTagName('Station');
 		
 		for (var i = 0; i < stations.length; i++) {
@@ -216,7 +231,11 @@ function getUHData(pk, callback) {
 			break;
 		    }
 		}
-		callback(in_name, in_coord, out_name, out_coord);
+		if (need_date == true) {
+		    callback(in_name, in_coord, out_name, out_coord, date);
+		}else {
+		    callback(in_name, in_coord, out_name, out_coord);
+		}
 	    }
 	}
     }
@@ -224,10 +243,45 @@ function getUHData(pk, callback) {
     request.send('');
 }
 
-function showBalloon(pk) { }
+function showBalloon(event) {
+    var placemark = event.getCurrentTarget()
+    var lplacemark = Placemarks[placemark.getName() + placemark.getGeometry().getLongitude() + placemark.getGeometry().getLatitude()];
+    // Prevent default balloon from popping up for marker placemarks
+    event.preventDefault();
+    if (lplacemark == undefined) {
+	alert("Not found placemark:" + placemark.getName() + placemark.getGeometry().getLongitude() + placemark.getGeometry().getLatitude());
+    } else {
+	
+	// wrap alerts in API callbacks and event handlers
+	// in a setTimeout to prevent deadlock in some browsers
+	setTimeout(function() {
+	    var balloon = ge.createHtmlStringBalloon('');
+	    var html = "";
+	    
+	    balloon.setFeature(placemark); 
+	    //balloon.setMaxWidth(300);
+	    for (var i = 0; i < lplacemark[1].length; i++) {
+		getUHData(lplacemark[1][i], true, function (in_name, in_coord, out_name, out_coord, date) {
+		    if (placemark.getName() == in_name) {
+			html = "<p><b>" + date + "</b>　入場</p>" + html;
+		    } else if (placemark.getName() == out_name) {
+			html = "<p><b>" + date + "</b>　出場</p>" + html;
+		    }
+		    balloon.setContentString(html);
+		    ge.setBalloon(balloon);
+		});
+	    }
+	    
+	}, 0);
+	
+    }
+}
 
 function onUHClick(pk) {
     var uh_tr = document.getElementById('UH_' + pk);
+    
+    // close any balloons
+    ge.setBalloon(null);
     
     if (uh_tr.getAttribute('bgcolor') == '#365178') {
 	// show on
@@ -237,9 +291,9 @@ function onUHClick(pk) {
 	uh_tr.setAttribute('onmouseout', "style.background='#2B64FF'");
 	
 	// ajax
-	getUHData(pk, function (in_name, in_coord, out_name, out_coord){
-	    createPlacemark(in_name, in_coord);
-	    createPlacemark(out_name, out_coord);
+	getUHData(pk, false, function (in_name, in_coord, out_name, out_coord) {
+	    createPlacemark(pk, in_name, in_coord);
+	    createPlacemark(pk, out_name, out_coord);
 	    createLineString(in_coord, out_coord);
 	});
     } else if (uh_tr.getAttribute('bgcolor') == '#2B64FF') {
@@ -250,9 +304,9 @@ function onUHClick(pk) {
 	uh_tr.setAttribute('onmouseout', "style.background='#365178'");
 	
 	// ajax
-	getUHData(pk, function (in_name, in_coord, out_name, out_coord){
-	    removePlacemark(in_name, in_coord);
-	    removePlacemark(out_name, out_coord);
+	getUHData(pk, false, function (in_name, in_coord, out_name, out_coord) {
+	    removePlacemark(pk, in_name, in_coord);
+	    removePlacemark(pk, out_name, out_coord);
 	    removeLineString(in_coord, out_coord);
 	});
     }

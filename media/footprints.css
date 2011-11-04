@@ -14,10 +14,14 @@ body {
     margin-top: 0;
     float: left;
 }
-#welcome {
-    margin: 1%;
+#login_mes {
+    margin-right: 2%;
+    padding-top: 1%;
     float: right;
-    color: #0000FF;
+    color: #FF0000;
+}
+#username {
+    font-weight: bold;
 }
 
 #footer {}
