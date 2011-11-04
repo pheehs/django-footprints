@@ -256,18 +256,20 @@ function showBalloon(event) {
 	// in a setTimeout to prevent deadlock in some browsers
 	setTimeout(function() {
 	    var balloon = ge.createHtmlStringBalloon('');
-	    var html = "";
+	    var title_html = "<h3>" + placemark.getName() + "</h3><p>";
+	    var body_html = "";
+	    var footer_html = "</p>";
 	    
 	    balloon.setFeature(placemark); 
 	    //balloon.setMaxWidth(300);
 	    for (var i = 0; i < lplacemark[1].length; i++) {
 		getUHData(lplacemark[1][i], true, function (in_name, in_coord, out_name, out_coord, date) {
 		    if (placemark.getName() == in_name) {
-			html = "<p><b>" + date + "</b>　入場</p>" + html;
+			body_html += "<b>" + date + "</b>　入場<br />";
 		    } else if (placemark.getName() == out_name) {
-			html = "<p><b>" + date + "</b>　出場</p>" + html;
+			body_html += "<b>" + date + "</b>　出場<br />";
 		    }
-		    balloon.setContentString(html);
+		    balloon.setContentString(title_html + body_html + footer_html);
 		    ge.setBalloon(balloon);
 		});
 	    }
