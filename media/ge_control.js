@@ -5,6 +5,7 @@ ge_control.js
 
 var Placemarks = {};
 var LineStrings = {};
+var UHListFlag = {};
 
 function createXMLHttpRequest() {
     if (window.XMLHttpRequest) { // other than IE
@@ -74,13 +75,7 @@ function failureCallback(errorCode) {
 function init() {
     google.earth.createInstance('map3d', initCallback, failureCallback);
 
-    addUIHtml('<style type="text/css">' +
-	      '  #progress-wrap { padding-top: 3%; height: 30%; }' +
-	      '  #progress-explain { height: 60%; text-align: center;}' +
-	      '  #progress-container { width: 50%; height: 40%; border: 1px solid #ccc; margin: 0 auto;}' +
-	      '  #progress-bar { width: 0; height: 100%; }' +
-	      '</style>' +
-	      '<div id="progress-wrap">' +
+    addUIHtml('<div id="progress-wrap">' +
 	      '  <div id="progress-explain">' +
 	      '    Data Streaming Progress:' +
 	      '  </div>' +
@@ -92,8 +87,8 @@ function init() {
 }
 google.setOnLoadCallback(init);
 
-function createPlacemark(pk, name, coord) {
-    var lplacemark = Placemarks[name + coord[0] + coord[1]];
+function createPlacemark(uh_pk, name, coord, ss_pk) {
+    var lplacemark = Placemarks[ss_pk];
 
     if (lplacemark == undefined) {
 	// Create new placemark
@@ -112,45 +107,54 @@ function createPlacemark(pk, name, coord) {
 	point.setLongitude(coord[0]);
 	point.setLatitude(coord[1]);
 	placemark.setGeometry(point);
+	// database primary key
+	placemark.ss_pk = ss_pk
 	// Save in Placemarks
-	Placemarks[name + coord[0] + coord[1]] = [placemark, []];
-	lplacemark = Placemarks[name + coord[0] + coord[1]];
-	// Sort UH_pk list
-	//Placemarks[name + coord[0] + coord[1]][1].sort(getUHData_sort)
+	Placemarks[ss_pk] = [placemark, {
+	    "uh_pks" : [], 
+	    "title_html" : '<span id="balloon_station_name">' + name + '</span><div id="balloon_enter_html">',
+	    "enter_html" : [], 
+	    "footer_html" : '</div><span id="balloon_correct_link"><a href="#" onclick="correctStation(' + ss_pk + ');">駅座標の訂正</a></span>'
+	} ];
+	lplacemark = Placemarks[ss_pk];
     }
-    if (lplacemark[1].length >= 0) {
-	Placemarks[name + coord[0] + coord[1]][1].push(pk);
-	if (lplacemark[1].length == 1) {
+    if (lplacemark[1]["uh_pks"].length >= 0) {
+	Placemarks[ss_pk][1]["uh_pks"].push(uh_pk);
+	
+	getBalloonData(lplacemark[0].ss_pk);
+	
+	if (lplacemark[1]["uh_pks"].length == 1) {
 	    ge.getFeatures().appendChild(lplacemark[0]);
-
 	    // listen to the click event
 	    google.earth.addEventListener(lplacemark[0], 'click', showBalloon);
 	    return 1;
 	}
     } else {
-	alert('Error: placemark(' + name + ":" + coord[0] + ", " + coord[1] + ')\'s counter is wrong.');
+	alert('Error: placemark(' + ss_pk + ')\'s counter is wrong.');
 	return -1;
     }
     return 0;
 }
 
-function removePlacemark(pk, name, coord) {
-    var lplacemark = Placemarks[name + coord[0] + coord[1]];
+function removePlacemark(uh_pk, ss_pk) {
+    var lplacemark = Placemarks[ss_pk];
 
     if (lplacemark == undefined) {
-	alert('Error: placemark(' + name + ":" + coord[0] + ", " + coord[1] + ') not defined.');
+	alert('Error: placemark(' + ss_pk + ') not defined.');
 	return -1;
     } else {
-	if (lplacemark[1].length > 0) {
-	    var index = lplacemark[1].indexOf(pk);
-	    Placemarks[name + coord[0] + coord[1]][1].splice(index, 1)
-
-	    if (lplacemark[1].length == 0) {
+	if (lplacemark[1]["uh_pks"].length > 0) {
+	    var index = lplacemark[1]["uh_pks"].indexOf(uh_pk);
+	    Placemarks[ss_pk][1]["uh_pks"].splice(index, 1)
+	    
+	    if (lplacemark[1]["uh_pks"].length == 0) {
 		ge.getFeatures().removeChild(lplacemark[0]);
 
 		// remove event listener
 		google.earth.removeEventListener(lplacemark[0], 'click', showBalloon);
 		return 1;
+	    } else {
+		getBalloonData(lplacemark[0].ss_pk);
 	    }
 	}
     }
@@ -198,10 +202,7 @@ function removeLineString(in_coord, out_coord) {
     }
 }
 
-function getUHData(pk, need_date, callback) {
-    /*
-      need_date(boolean) : if true, add date parameter to callback arguments.
-     */
+function getUHData(uh_pk, callback) {
     
     // ajax request
     var request = createXMLHttpRequest();
@@ -214,7 +215,6 @@ function getUHData(pk, need_date, callback) {
 	    if (error.childNodes[0]) {
 		alert('DataBaseError:\n' + error.childNodes[0].nodeValue);
 	    }else {
-		var date = xmlData.getElementsByTagName("Date")[0].childNodes[0].nodeValue;
 		var stations = xmlData.getElementsByTagName('Station');
 		
 		for (var i = 0; i < stations.length; i++) {
@@ -223,93 +223,267 @@ function getUHData(pk, need_date, callback) {
 			var in_name = stations[i].getElementsByTagName('Name')[0].childNodes[0].nodeValue;
 			var in_coord = [parseFloat(stations[i].getElementsByTagName('Lon')[0].childNodes[0].nodeValue), 
 					parseFloat(stations[i].getElementsByTagName('Lat')[0].childNodes[0].nodeValue)];
+			var in_ss_pk = stations[i].getElementsByTagName('SSPK')[0].childNodes[0].nodeValue;
 			break;
 		    case 'out':
 			var out_name = stations[i].getElementsByTagName('Name')[0].childNodes[0].nodeValue;
 			var out_coord = [parseFloat(stations[i].getElementsByTagName('Lon')[0].childNodes[0].nodeValue), 
 					 parseFloat(stations[i].getElementsByTagName('Lat')[0].childNodes[0].nodeValue)];
+			var out_ss_pk = stations[i].getElementsByTagName('SSPK')[0].childNodes[0].nodeValue;
 			break;
 		    }
 		}
-		if (need_date == true) {
-		    callback(in_name, in_coord, out_name, out_coord, date);
-		}else {
-		    callback(in_name, in_coord, out_name, out_coord);
+		callback(in_name, in_coord, in_ss_pk, out_name, out_coord, out_ss_pk);
+	    }
+	}
+    }
+    request.open('GET', '/footprints/get_lonlat?uh=' + uh_pk, true);
+    request.send('');
+}
+
+function getBalloonData(ss_pk) {
+    // ajax request
+    var request = createXMLHttpRequest();
+    var lplacemark = Placemarks[ss_pk];
+    var URL = '/footprints/get_balloon?station_pk=' + ss_pk + "&uh_pks=" + lplacemark[1]["uh_pks"].join(",");
+    
+    request.onreadystatechange = function () {
+	if (request.readyState == 4 && request.status == 200) {
+	    var xmlData = request.responseXML;
+	    var error = xmlData.getElementsByTagName('Error')[0];
+	    
+	    if (error.childNodes[0]) {
+		alert('DataBaseError:\n' + error.childNodes[0].nodeValue);
+	    }else {
+		var balloons = xmlData.getElementsByTagName("Balloon");
+		
+		Placemarks[ss_pk][1]["enter_html"] = [];
+		
+		for (var i = 0; i < balloons.length; i++){
+		    var date = balloons[i].getElementsByTagName("Date")[0].childNodes[0].nodeValue;
+		    var uh_pk = balloons[i].getElementsByTagName("UHPK")[0].childNodes[0].nodeValue;
+
+		    switch (balloons[i].getAttribute('type')) {
+		    case "in":
+			Placemarks[ss_pk][1]["enter_html"].push('<span bgcolor="#FFFFFF" onmouseover="style.background=\'#00FF00\'" onmouseout="style.background=\'#FFFFFF\'"><b>' + date + '</b>　<span id="balloon_enter_in">入場</span></span><br />');
+			break;
+		    case "out":
+			Placemarks[ss_pk][1]["enter_html"].push('<span bgcolor="#FFFFFF" onmouseover="style.background=\'#00FF00\'" onmouseout="style.background=\'#FFFFFF\'"><b>' + date + '</b>　<span id="balloon_enter_out">出場</span></span><br />');
+			break;
+		    }
 		}
 	    }
 	}
     }
-    request.open('GET', '/footprints/get_lonlat?uh=' + pk, true);
+    request.open('GET', URL, true);
     request.send('');
 }
 
 function showBalloon(event) {
     var placemark = event.getCurrentTarget()
-    var lplacemark = Placemarks[placemark.getName() + placemark.getGeometry().getLongitude() + placemark.getGeometry().getLatitude()];
+    var lplacemark = Placemarks[placemark.ss_pk];
     // Prevent default balloon from popping up for marker placemarks
     event.preventDefault();
     if (lplacemark == undefined) {
-	alert("Not found placemark:" + placemark.getName() + placemark.getGeometry().getLongitude() + placemark.getGeometry().getLatitude());
+	alert("Not found placemark:" + placemark.ss_pk );
     } else {
 	
 	// wrap alerts in API callbacks and event handlers
 	// in a setTimeout to prevent deadlock in some browsers
 	setTimeout(function() {
 	    var balloon = ge.createHtmlStringBalloon('');
-	    var title_html = "<h3>" + placemark.getName() + "</h3><p>";
-	    var body_html = "";
-	    var footer_html = "</p>";
-	    
+	    balloon.setBackgroundColor("3300FF00");
 	    balloon.setFeature(placemark); 
 	    //balloon.setMaxWidth(300);
-	    for (var i = 0; i < lplacemark[1].length; i++) {
-		getUHData(lplacemark[1][i], true, function (in_name, in_coord, out_name, out_coord, date) {
-		    if (placemark.getName() == in_name) {
-			body_html += "<b>" + date + "</b>　入場<br />";
-		    } else if (placemark.getName() == out_name) {
-			body_html += "<b>" + date + "</b>　出場<br />";
-		    }
-		    balloon.setContentString(title_html + body_html + footer_html);
-		    ge.setBalloon(balloon);
-		});
-	    }
-	    
+	    balloon.setContentString(lplacemark[1]["title_html"] + lplacemark[1]["enter_html"].join("") + lplacemark[1]["footer_html"]);
+	    ge.setBalloon(balloon);
+
 	}, 0);
 	
     }
 }
 
-function onUHClick(pk) {
-    var uh_tr = document.getElementById('UH_' + pk);
+function onUHClick(uh_pk) {
+    var uh_tr = document.getElementById('UH_' + uh_pk);
     
     // close any balloons
     ge.setBalloon(null);
     
-    if (uh_tr.getAttribute('bgcolor') == '#365178') {
+    if (UHListFlag[uh_pk] == false || UHListFlag[uh_pk] == undefined) {
 	// show on
+	UHListFlag[uh_pk] = true;
 	// table tr bgcolor
 	uh_tr.setAttribute('bgcolor', '#2B64FF');
 	uh_tr.setAttribute('onmouseover', "style.background='#2BCEFF'");
 	uh_tr.setAttribute('onmouseout', "style.background='#2B64FF'");
 	
 	// ajax
-	getUHData(pk, false, function (in_name, in_coord, out_name, out_coord) {
-	    createPlacemark(pk, in_name, in_coord);
-	    createPlacemark(pk, out_name, out_coord);
+	getUHData(uh_pk, function (in_name, in_coord, in_ss_pk, out_name, out_coord, out_ss_pk) {
+	    createPlacemark(uh_pk, in_name, in_coord, in_ss_pk);
+	    createPlacemark(uh_pk, out_name, out_coord, out_ss_pk);
 	    createLineString(in_coord, out_coord);
 	});
-    } else if (uh_tr.getAttribute('bgcolor') == '#2B64FF') {
+    } else {
 	// show off
+	UHListFlag[uh_pk] = false;
 	// table tr bgcolor
 	uh_tr.setAttribute('bgcolor', '#365178');
 	uh_tr.setAttribute('onmouseover', "style.background='#3577E8'");
 	uh_tr.setAttribute('onmouseout', "style.background='#365178'");
 	
 	// ajax
-	getUHData(pk, false, function (in_name, in_coord, out_name, out_coord) {
-	    removePlacemark(pk, in_name, in_coord);
-	    removePlacemark(pk, out_name, out_coord);
+	getUHData(uh_pk, function (in_name, in_coord, in_ss_pk, out_name, out_coord, out_ss_pk) {
+	    removePlacemark(uh_pk, in_ss_pk);
+	    removePlacemark(uh_pk, out_ss_pk);
 	    removeLineString(in_coord, out_coord);
 	});
     }
+}
+
+var dragInfo = null;
+var drag_ss_pk = null;
+
+function correctStation(ss_pk) {
+    var lplacemark = Placemarks[ss_pk];
+        
+    if (lplacemark == undefined) {
+	alert("Error! \nplacemark(" + ss_pk + ") not defined.");
+    } else {
+	drag_ss_pk = ss_pk;
+	
+	// listen for mousedown on the window (look specifically for point placemarks)
+	google.earth.addEventListener(ge.getWindow(), 'mousedown', Drag_mousedown);
+	// listen for mousemove on the globe
+	google.earth.addEventListener(ge.getGlobe(), 'mousemove', Drag_mousemove);
+	// listen for mouseup on the window
+	google.earth.addEventListener(ge.getWindow(), 'mouseup', Drag_mouseup);
+
+	var balloon = ge.createHtmlStringBalloon('');
+	balloon.setBackgroundColor("3300FF00");
+	balloon.setFeature(lplacemark[0]);
+	//balloon.setMaxWidth(300);
+	balloon.setContentString(lplacemark[1]["title_html"] + lplacemark[1]["enter_html"].join("") + '</div><button type="button" onclick="Drag_end();" >決定</button>');
+	ge.setBalloon(balloon);
+	console.log("correctStation");
+	
+	// remove event listener of placemark
+	google.earth.removeEventListener(lplacemark[0], 'click', showBalloon);
+    }	
+}
+
+function Drag_mousedown(event) {
+    var placemark = event.getTarget();
+    if (placemark.getType() == 'KmlPlacemark' &&
+	placemark.getGeometry().getType() == 'KmlPoint') {
+	console.log("Drag_mousedown");
+	event.preventDefault();
+	
+	if (dragInfo == null) {
+	    if (placemark.ss_pk == drag_ss_pk) {
+		placemark.old_coord = [placemark.getGeometry().getLongitude(), placemark.getGeometry().getLatitude()];
+		dragInfo = {
+		    placemark: event.getTarget(),
+		    dragged: false,
+		    paused: false
+		};
+	    }
+	} else if (dragInfo.paused == true){
+	    dragInfo.paused = false;
+	}
+    }
+}
+
+function Drag_mousemove(event) {
+    if (dragInfo) {
+	if (dragInfo.paused == false) {
+	    console.log("Drag_mousemove");
+	    event.preventDefault();
+	    
+	    var point = dragInfo.placemark.getGeometry();
+	    point.setLatitude(event.getLatitude());
+	    point.setLongitude(event.getLongitude());
+	    dragInfo.dragged = true;
+	}
+    }
+}
+
+function Drag_mouseup(event) {
+    if (dragInfo) {
+	if (dragInfo.dragged == true && dragInfo.paused == false) {
+	    console.log("Drag_mouseup");
+	    // if the placemark was dragged, prevent balloons from popping up
+	    event.preventDefault();
+	    dragInfo.paused = false;
+	    dragInfo.paused = true;
+	    
+	    var balloon = ge.createHtmlStringBalloon('');
+	    balloon.setBackgroundColor("3300FF00");
+	    balloon.setFeature(lplacemark[0]);
+	    //balloon.setMaxWidth(300);
+	    balloon.setContentString(lplacemark[1]["title_html"] + lplacemark[1]["enter_html"].join("") + '</div><button type="button" onclick="Drag_end();" >決定</button>');
+	    ge.setBalloon(balloon);
+	}
+    }
+}
+
+function Drag_end() {
+    if (dragInfo) {
+	console.log("Drag_end");
+	// remove EventListener
+	google.earth.removeEventListener(ge.getWindow(), 'mousedown', Drag_mousedown);
+	google.earth.removeEventListener(ge.getGlobe(), 'mousemove', Drag_mousemove);
+	google.earth.removeEventListener(ge.getWindow(), 'mouseup', Drag_mouseup);
+	
+	var placemark = dragInfo.placemark;
+	var lplacemark = Placemarks[placemark.ss_pk];
+	var lat = placemark.getGeometry().getLatitude()
+	var lon = placemark.getGeometry().getLongitude()
+
+	var yesno = confirm(placemark.getName() + "の訂正" + 
+			    "変更前(" + placemark.old_coord[0] + placemark.old_coord[1] + ")" + 
+			    "変更後(" + lon + lat + ")" + 
+			    "を送信しますか？");
+	if (yesno = true) {
+	    sendCorrection(placemark.ss_pk, lon, lat);
+	} else {
+	    alert("変更がキャンセルされました。");
+	}
+	// restore original coord
+	placemark.getGeometry().setLongitude(placemark.old_coord[0])
+	placemark.getGeometry().setLatitude(placemark.old_coord[1])
+	// popup normal balloon
+	var balloon = ge.createHtmlStringBalloon('');
+	balloon.setBackgroundColor("3300FF00");
+	balloon.setFeature(placemark); 
+	//balloon.setMaxWidth(300);
+	balloon.setContentString(lplacemark[1]["title_html"] + lplacemark[1]["enter_html"].join("") + lplacemark[1]["footer_html"]);
+	ge.setBalloon(balloon);
+	dragInfo = null;
+	// add event listener of placemark
+	google.earth.addEventListener(lplacemark[0], 'click', showBalloon);
+	
+    }
+}
+
+function sendCorrection(ss_pk, lon, lat) {
+    // ajax request
+    var request = createXMLHttpRequest();
+    var lplacemark = Placemarks[ss_pk];
+    var URL = '/footprints/send_correction?station_pk=' + ss_pk + "&lon=" + lon + "&lat=" + lat;
+    
+    request.onreadystatechange = function () {
+	if (request.readyState == 4 && request.status == 200) {
+	    var xmlData = request.responseXML;
+	    var error = xmlData.getElementsByTagName('Error')[0];
+	    
+	    if (error.childNodes[0]) {
+		alert('DataBaseError:\n' + error.childNodes[0].nodeValue);
+	    }else {
+		var balloons = xmlData.getElementsByTagName("Balloon");
+		
+	    }
+	}
+    }
+    request.open('GET', URL, true);
+    request.send("");
 }

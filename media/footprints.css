@@ -42,6 +42,29 @@ body {
     background-color: #2756D1;
     padding: 1% 1% 0;
 }
+#progress-wrap {
+    padding-top: 3%; 
+    height: 30%; 
+}
+#progress-explain {
+    height: 60%; 
+    text-align: center;
+}
+#progress-container {
+    width: 50%; 
+    height: 40%; 
+    border: 1px solid #ccc; 
+    margin: 0 auto;
+}
+#progress-bar { 
+    width: 0; 
+    height: 100%; 
+}
+#balloon_station_name { font-size: 1.5em; }
+#balloon_enter_html { font-size: 1.0em; }
+#balloon_enter_in { color: #FF0000; }
+#balloon_enter_out { color: #0000FF; }
+#balloon_correct_link { font-style: oblique; font-size: 0.4em; }
 #map3d {
     height: 80%; 
 }

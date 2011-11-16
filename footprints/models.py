@@ -87,6 +87,17 @@ class StationSummary(models.Model):
     def __unicode__(self):
         return u"StationSummary(%s)" % self.station_name
 
+class StationCorrection(models.Model):
+    user = models.ForeignKey(User)
+    m_station = models.ForeignKey(u"StationSummary")
+    lon = models.FloatField(u"経度")
+    lat = models.FloatField(u"緯度")
+    date = models.DateTimeField(u"送信日時", default=datetime.datetime.now())
+    checked = models.BooleanField(u"確認済み", default=False)
+
+    def __unicode__(self):
+        return u"StationCorrection(%s)" % self.m_station.station_name
+    
 class UsageHistory(models.Model):
     card = models.ForeignKey(u"Card")
     EQP_TYPES = (
@@ -181,7 +192,7 @@ class UsageHistory(models.Model):
         )
     in_area_code = models.PositiveIntegerField(u"入場地域コード", choices=AREA_CODE)
     out_area_code = models.PositiveIntegerField(u"出場地域コード", choices=AREA_CODE)
-
+    
     def __unicode__(self):
         return u"UsageHistory(%s)" % self.card.name
 """

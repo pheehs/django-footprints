@@ -74,14 +74,14 @@ class DataUpdater(object):
         print
         return
         
-    def update(self, auto_no_much=True, updateMStation=True, updateStationCode=True):
+    def update(self, auto_no_much=True, updateMStation=(True, True), updateStationCode=(True, True)):
         
-        if updateMStation:
+        if updateMStation[0]:
             [m.delete() for m in MStation.objects.all()]
-            self.updateMStation()
-        if updateStationCode:
+            self.updateMStation(updateMStation[1])
+        if updateStationCode[0]:
             [m.delete() for m in StationCode.objects.all()]
-            self.updateStationCode()
+            self.updateStationCode(updateStationCode[1])
         # sort out
         StationSummary.objects.all().delete()
         query = StationCode.objects.all()
@@ -190,7 +190,13 @@ def max_s(vals):
   return res
 
 if __name__ == "__main__":
+    import sys
     updater = DataUpdater()
-    updater.update(auto_no_much=True, updateMStation=True, updateStationCode=True)
+    updater.update(auto_no_much=("--auto-nomuch" in sys.argv[1:]), 
+                   updateMStation=(("--update-ms" in sys.argv[1:]), 
+                                   ("--download-ms" in sys.argv[1:])), 
+                   updateStationCode=(("--update-sc" in sys.argv[1:]), 
+                                      ("--download-sc" in sys.argv[1:]))
+                   )
 
 

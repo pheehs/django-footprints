@@ -3,10 +3,11 @@
 
 from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404, get_list_or_404
-from django.core.exceptions import ObjectDoesNotExist
-#from django.core.urlresolvers import reverse
 from django.contrib.auth import login, logout, authenticate
-
+from django.db.models import Q
+from django.core.exceptions import ObjectDoesNotExist
+from django.core.mail import mail_admins
+from smtplib import SMTPException
 from pythxsh.footprints.models import *
 
 def index_view(request):
@@ -44,13 +45,50 @@ def get_lonlat_view(request):
                                       {"message":"This out_StationCode is wrong."},
                                       mimetype="application/xhtml+xml")
         return render_to_response("footprints/lonlat.xml",
-                                  {"date":uh.date.strftime("%Y/%m/%d"),
-                                   "in_name":in_station.station_name,
+                                  {"in_name":in_station.station_name,
                                    "in_lon":in_station.lon,
                                    "in_lat":in_station.lat,
+                                   "in_ss_pk":in_station.pk,
                                    "out_name":out_station.station_name,
                                    "out_lon":out_station.lon,
-                                   "out_lat":out_station.lat},
+                                   "out_lat":out_station.lat,
+                                   "out_ss_pk":out_station.pk},
+                                  mimetype="application/xhtml+xml")
+
+def get_balloon_view(request):
+    if not request.user.is_authenticated():
+        return render_to_response("footprints/error.xml",
+                                  {"message":"Prease login before."},
+                                  mimetype="application/xhtml+xml")
+    else:
+        station_pk = request.GET.get("station_pk")
+        pks = request.GET.get("uh_pks")
+        try:
+            station = StationSummary.objects.get(pk=station_pk)
+        except (ObjectDoesNotExist, TypeError, ValueError):
+            return render_to_response("footprints/error.xml",
+                                      {"message":"Prease specify correct station_name, longitude and latitude."},
+                                      mimetype="application/xhtml+xml")
+        if pks:
+            pk_list = pks.split(",")
+            if len(pk_list) > 0:
+                uh_query = UsageHistory.objects.filter(Q(pk__in=pk_list), 
+                                                      Q(in_area_code=station.area_code)|Q(out_area_code=station.area_code),
+                                                      Q(in_line_code=station.line_code)|Q(out_line_code=station.line_code),
+                                                      Q(in_station_code=station.station_code)|Q(out_station_code=station.station_code),
+                                                      ).order_by("-date")
+                uh_list = []
+                for uh in uh_query:
+                    if (uh.in_area_code == station.area_code) and (uh.in_line_code == station.line_code) and (uh.in_station_code == station.station_code):
+                        uh_list.append(("in", uh.date.strftime("%Y/%m/%d"), uh.pk))
+                    else:
+                        uh_list.append(("out", uh.date.strftime("%Y/%m/%d"), uh.pk))
+                return render_to_response("footprints/balloon.xml",
+                                          {"uh_list":uh_list},
+                                          mimetype="application/xhtml+xml")
+        
+        return render_to_response("footprints/error.xml",
+                                  {"message":"Please specify correct uh_pk."},
                                   mimetype="application/xhtml+xml")
     
 def login_view(request):
@@ -103,18 +141,45 @@ def logout_view(request):
     else:
         return HttpResponse("まだログインしていません。")
 
-def correction_view(request):
+def send_correction_view(request):
     if not request.user.is_authenticated():
-        return HttpResponseRedirect("/footprints/login/?next=/footprints/")
+        return render_to_response("footprints/error.xml",
+                                  {"message":"Prease login before."},
+                                  mimetype="application/xhtml+xml")
     else:
-        if request.method == "POST":
-            area_code = request.POST.get("area_code")
-            line_code = request.POST.get("line_code")
-            station_code = request.POST.get("station_code")
-            lon = request.POST.get("lon")
-            lat = request.POST.get("lat")
-            
-            blank = [s for s in range(5) if not [area_code, line_code, station_code, lon, lat][s]]
-            
-            
+        ss_pk = request.GET.get("station_pk")
+        lon = request.GET.get("lon")
+        lat = request.GET.get("lat")
 
+        try:
+            ss = StationSummary.objects.get(pk=int(ss_pk))
+        except (ObjectDoesNotExist, TypeError, ValueError):
+            return render_to_response("footprints/error.xml",
+                                      {"message":"Prease specify correct station_pk."},
+                                      mimetype="application/xhtml+xml")
+        try:
+            lon_f = float(lon)
+            lat_f = float(lat)
+        except (TypeError, ValueError):
+            return render_to_response("footprints/error.xml",
+                                      {"message":"Prease specify correct lon and lat."},
+                                      mimetype="application/xhtml+xml")
+        if ss.lon != lon_f and ss.lat != lat_f:
+            correction = StationCorrection(user=request.user, m_station=ss, lon=lon_f, lat=lat_f)
+            correction.save()
+            try:
+                # Prease set EMAIL_HOST, EMAIL_PORT, EMAIL_HOST_USER(, EMAIL_USE_TLS) and EMAIL_HOST_PASSWORD in settings.py
+                mail_admins(u"New StationCorrection!",
+                            (u"There is a new StationCorrection.\n\n\n" +
+                             u"StationCorrection:\n" +
+                             u"http://%(host)s/admin/footprints/stationcorrection/%(sc_pk)d/\n\n" +
+                             u"StationSummary:\n" +
+                             u"http://%(host)s/admin/footprints/stationsummary/%(ss_pk)d/\n\n") % \
+                                {"host":request.get_host(), "sc_pk":correction.pk, "ss_pk":int(ss_pk)},
+                            fail_silently=False)
+            except SMTPException:
+                return render_to_response("footprints/error.xml",
+                                          {"message":"Error occured on sending correction."},
+                                          mimetype="application/xhtml+xml")
+            return render_to_response("footprints/corrected.xml",
+                                      mimetype="application/xhtml+xml")

@@ -19,6 +19,13 @@ class StationSummaryAdmin(admin.ModelAdmin):
         ]
     list_display = ("station_name", "area_code", "line_code", "station_code", "lon", "lat")
 
+class StationCorrectionAdmin(admin.ModelAdmin):
+    fieldsets = [
+        (None, {"fields":["user", "m_station", "lon", "lat", "date", "checked"],
+              "description":u"<font color='red'><b>太字のものは必須入力事項です。</b></font>"}),
+        ]
+    list_display = ("m_station", "lon", "lat", "date", "user", "checked")
+
 class UsageHistoryAdmin(admin.ModelAdmin):
     fieldsets = [
         (None, {"fields":["card", "equipment", "is_together", "usage", "payment", "enter", "date", "in_line_code", "in_station_code", "out_line_code", "out_station_code", "company_code", "stop_code", "buy_time", "buy_id", "balance", "in_area_code", "out_area_code", ],
@@ -31,4 +38,5 @@ admin.site.register(StationCode)
 admin.site.register(MStation)
 admin.site.register(StationExtension)
 admin.site.register(StationSummary, StationSummaryAdmin)
+admin.site.register(StationCorrection, StationCorrectionAdmin)
 admin.site.register(UsageHistory, UsageHistoryAdmin)
