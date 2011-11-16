@@ -17,7 +17,7 @@
 <div id="wrap">
 <div id="header">
   <h2 id="title">Footprints</h2>
-  {% if user.is_authorized %}
+  {% if user.is_authenticated %}
   <div id="login_mes">ログイン中：<span id="username">{{ user.username }}</span></div>
   {% endif %}
   <div class="clear"><hr /></div>
