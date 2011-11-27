@@ -1,0 +1,31 @@
+{% extends "ontan/base.html" %}
+
+{% block title %}穴埋め問題の送信{% endblock %}
+
+{% block body %}
+<h2>穴埋め問題の送信</h2>
+<p>送信するにはログインが必要です。</p>
+{% if error %}
+<p>
+  <font color="red">{{ error }}</font>
+  {{ redirect|safe }}
+</p>
+{% endif %}
+<p>
+  <form method="post" action="">
+    <p>問題番号：　<input type="text" name="number" maxlength="6" /></p>
+    <p>
+      問題文<font color="red">(空白は「( )」(半角括弧の中に半角スペース)で表す。)</font>：　<br />
+      <input type="text" name="question" maxlength="80" />
+    </p>
+    <p>
+      和訳：　<br />
+      <input type="text" name="japanese" maxlength="80" />
+    </p>
+    <p>答え<font color="red">(「,」(カンマ)で区切る。)</font>：　<br />
+      <input type="text" name="answer" maxlength="50" />
+    </p>
+    <p><input type="submit" value="送信" /></p>
+  </form>
+</p>
+{% endblock body %}

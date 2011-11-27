@@ -1,0 +1,22 @@
+{% extends "ontan/base.html" %}
+
+{% block title %}一問一答の送信{% endblock %}
+
+{% block body %}
+<h2>一問一答の送信</h2>
+<p>送信するにはログインが必要です。</p>
+{% if error %}
+<p>
+  <font color="red">{{ error }}</font>
+  {{ redirect|safe }}
+</p>
+{% endif %}
+<p>
+  <form method="post" action="">
+    <p>問題番号<font color="red">(重複不可)</font>：　<input type="text" name="number" maxlength="6" /></p>
+    <p>日本語：　<input type="text" name="question" maxlength="50" /></p>
+    <p>英語：　<input type="text" name="answer" maxlength="20" /></p>
+    <p><input type="submit" value="送信" /></p>
+  </form>
+</p>
+{% endblock body %}
