@@ -4,11 +4,10 @@
 from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404, get_list_or_404
 from django.contrib.auth import login, logout, authenticate
-from django.db.models import Q
+#from django.db.models import Q
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.mail import mail_admins
-from smtplib import SMTPException
 from pythxsh.ontan.models import *
+import random
 
 
 def index_view(request):
@@ -128,10 +127,45 @@ def fillquestions_view(request, pagenum):
                                    "cur_page":pagenum, })
 
 def exam_wordquestions_view(request):
-    pass
+    show_num = request.GET.get("show", "50")
+    start_num = request.GET.get("start", "1")
+    end_num = request.GET.get("end", "1200")
+    all_wq_num = WordQuestion.objects.count()
+    try:
+        show_num = int(show_num)
+    except (ValueError, TypeError):
+        show_num = 50
+    else:
+        if 0 > show_num or show_num > all_wq_num:
+            show_num = 50
+    try:
+        start_num = int(start_num)
+    except (ValueError, TypeError):
+        start_num = 1
+    else:
+        if 1 > start_num or start_num > all_wq_num:
+            start_num = 1
+    try:
+        end_num = int(end_num)
+    except (ValueError, TypeError):
+        end_num = 1200
+    else:
+        if 1 > end_num or end_num > all_wq_num:
+            end_num = 1200
+    all_questions_pk = [wq.pk for wq in WordQuestion.objects.all()[start_num-1:end_num+1]]
+    rand_questions_pk = []
+    for i in xrange(show_num):
+        r = random.randint(0, len(all_questions_pk)-1)
+        rand_questions_pk.append(all_questions_pk.pop(r))
+        
+    return render_to_response("ontan/exam_wordquestions.html",
+                              {"user":request.user,
+                               "questions":[WordQuestion.objects.get(pk=pk) for pk in rand_questions_pk]})
 
 def exam_fillquestions_view(request):
-    pass
+    return render_to_response("ontan/exam_fillquestions.html",
+                              {"user":request.user,
+                               })
     
 def login_view(request):
     if request.user.is_authenticated():
