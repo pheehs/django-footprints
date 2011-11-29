@@ -7,8 +7,8 @@ import cookielib
 from xlrd import open_workbook
 from BeautifulSoup import BeautifulSoup as BS
 
-HOSTNAME = "localhost:8000"
-#HOSTNAME = "pythxsh.geek.jp"
+#HOSTNAME = "localhost:8000"
+HOSTNAME = "pythxsh.geek.jp"
 LOGIN_URL = "http://%s/ontan/login/" % HOSTNAME
 POSTWORD_URL = "http://%s/ontan/post_wordquestion/" % HOSTNAME
 POSTFILL_URL = "http://%s/ontan/post_fillquestion/" % HOSTNAME

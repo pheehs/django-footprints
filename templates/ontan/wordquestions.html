@@ -1,19 +1,27 @@
 {% extends "ontan/base.html" %}
 
-{% block title %}一問一答{% endblock %}
+{% block title %}全単語一覧of一問一答{% endblock %}
 
 {% block head %}
 <script type="text/javascript" src="/media/questions.js"></script>
 {% endblock head %}
 
 {% block body %}
-<h2>一問一答</h2>
-<p><a href="/ontan/post_wordquestion/">問題の送信はこちら</a></p>
+<h2 id="title">全単語一覧of一問一答</h2>
 <p>
   <select id="hide_select" onchange="change_mode();">
     <option>英語を隠す</option>
     <option>日本語を隠す</option>
   </select>
+</p>
+<p>
+  {% for pnum, url in pages %}
+  {% ifequal pnum cur_page %}
+  <b><a href="{{ url }}">{{ pnum }}</a></b>
+  {% else %}
+  <a href="{{ url }}">{{ pnum }}</a>
+  {% endifequal %}
+  {% endfor %}
 </p>
 <table border="1" id="questions_table">
   <tr><td>問題番号</td><td>日本語</td><td>英語</td></tr>
@@ -21,4 +29,5 @@
   <tr id="question{{ wq.number }}" onmouseover="show_word({{ wq.number }});" onmouseout="hide_word({{ wq.number }});"><td>{{ wq.number }}</td><td>{{ wq.question }}</td><td style="color:#FFFFFF;">{{ wq.answer }}</td></tr>
   {% endfor %}
 </table>
+<p><a href="#title">上へ戻る</a></p>
 {% endblock body %}

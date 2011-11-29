@@ -1,18 +1,27 @@
 {% extends "ontan/base.html" %}
 
-{% block title %}穴埋め問題{% endblock %}
+{% block title %}全問題一覧of穴埋め問題{% endblock %}
 
 {% block head %}
 <script type="text/javascript" src="/media/questions.js"></script>
 {% endblock head %}
 
 {% block body %}
-<h2>穴埋め問題</h2>
-<p><a href="/ontan/post_fillquestion/">問題の送信はこちら</a></p>
+<h2 id="title">全問題一覧of穴埋め問題</h2>
+<p>
+  {% for pnum, url in pages %}
+  {% ifequal pnum cur_page %}
+  <b><a href="{{ url }}">{{ pnum }}</a></b>
+  {% else %}
+  <a href="{{ url }}">{{ pnum }}</a>
+  {% endifequal %}
+  {% endfor %}
+</p>
 <table border="1">
   <tr><td>問題番号</td><td>問題文</td><td>和訳</td><td>答え</td></tr>
   {% for fq in questions %}
   <tr id="question{{ fq.number }}" onmouseover="show_fill({{ wq.number }});" onmouseout="hide_fill({{ wq.number }});"><td>{{ fq.number }}</td><td>{{ fq.question }}</td><td>{{ fq.japanese }}</td><td>{{ fq.answer }}</td></tr>
   {% endfor %}
 </table>
+<p><a href="#title">上へ戻る</a></p>
 {% endblock body %}

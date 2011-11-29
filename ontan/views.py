@@ -102,16 +102,37 @@ def post_fillquestion_view(request):
         return render_to_response("ontan/post_fillquestion.html",
                                   {"user":request.user,})
     
-def wordquestions_view(request):
-    return render_to_response("ontan/wordquestions.html",
-                              {"user":request.user,
-                               "questions":WordQuestion.objects.all()})
-    
-def fillquestions_view(request):
-    return render_to_response("ontan/fillquestions.html",
-                              {"user":request.user,
-                               "questions":FillQuestion.objects.all()})
+def wordquestions_view(request, pagenum):
+    pagenum = int(pagenum)
+    maxpage = (WordQuestion.objects.count()+1) / 100
+    if maxpage < pagenum:
+        return HttpResponseRedirect("/ontan/")
+    else:
+        return render_to_response("ontan/wordquestions.html",
+                                  {"user":request.user,
+                                   "questions":WordQuestion.objects.all()[(pagenum-1)*100:pagenum*100],
+                                   "pages":[(p, "/ontan/wordquestions/%d/" % p) for p in xrange(1, maxpage+1)],
+                                   "cur_page":pagenum, })
 
+    
+def fillquestions_view(request, pagenum):
+    pagenum = int(pagenum)
+    maxpage = (FillQuestion.objects.count()+1) / 100
+    if maxpage < pagenum:
+        return HttpResponseRedirect("/ontan/")
+    else:
+        return render_to_response("ontan/fillquestions.html",
+                                  {"user":request.user,
+                                   "questions":FillQuestion.objects.all()[(pagenum-1)*100:pagenum*100],
+                                   "pages":[(p, "/ontan/fillquestions/%d/" % p) for p in xrange(1, maxpage+1)],
+                                   "cur_page":pagenum, })
+
+def exam_wordquestions_view(request):
+    pass
+
+def exam_fillquestions_view(request):
+    pass
+    
 def login_view(request):
     if request.user.is_authenticated():
         return HttpResponse("すでにログインしています。")
