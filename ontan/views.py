@@ -111,7 +111,10 @@ def wordquestions_view(request, pagenum):
                                   {"user":request.user,
                                    "questions":WordQuestion.objects.all()[(pagenum-1)*100:pagenum*100],
                                    "pages":[(p, "/ontan/wordquestions/%d/" % p) for p in xrange(1, maxpage+1)],
-                                   "cur_page":pagenum, })
+                                   "cur_page":pagenum, 
+                                   "next_page":"/ontan/wordquestions/%d/" % (pagenum+1),
+                                   "prev_page":"/ontan/wordquestions/%d/" % (pagenum-1), 
+                                   "max_page":maxpage})
 
     
 def fillquestions_view(request, pagenum):
@@ -124,7 +127,10 @@ def fillquestions_view(request, pagenum):
                                   {"user":request.user,
                                    "questions":FillQuestion.objects.all()[(pagenum-1)*100:pagenum*100],
                                    "pages":[(p, "/ontan/fillquestions/%d/" % p) for p in xrange(1, maxpage+1)],
-                                   "cur_page":pagenum, })
+                                   "cur_page":pagenum, 
+                                   "next_page":"/ontan/fillquestions/%d/" % (pagenum+1),
+                                   "prev_page":"/ontan/fillquestions/%d/" % (pagenum-1),
+                                   "max_page":maxpage})
 
 def exam_wordquestions_view(request):
     show_num = request.GET.get("show", "50")
