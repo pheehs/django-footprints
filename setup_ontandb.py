@@ -7,8 +7,8 @@ import cookielib
 from xlrd import open_workbook
 from BeautifulSoup import BeautifulSoup as BS
 
-#HOSTNAME = "localhost:8000"
-HOSTNAME = "pythxsh.geek.jp"
+HOSTNAME = "localhost:8000"
+#HOSTNAME = "pythxsh.geek.jp"
 LOGIN_URL = "http://%s/ontan/login/" % HOSTNAME
 POSTWORD_URL = "http://%s/ontan/post_wordquestion/" % HOSTNAME
 POSTFILL_URL = "http://%s/ontan/post_fillquestion/" % HOSTNAME
@@ -25,14 +25,15 @@ def init():
     urllib2.urlopen(LOGIN_URL, urllib.urlencode(logindata))
     return
 
-def setup():
+def setup(word, word_start, fill, fill_start):
     init()
     wb = open_workbook("media/ontan.xls", )
     
     for sheet in wb.sheets():
-        if sheet.name == u"一問一答":
+        if sheet.name == u"一問一答" and word:
             for r in xrange(sheet.nrows):
                 row = sheet.row(r)
+                if int(row[2].value) < word_start: continue
                 soup = BS(urllib2.urlopen(POSTWORD_URL).read())
                 worddata = {"number":int(row[2].value),
                             "question":row[3].value.encode("utf-8"),
@@ -41,17 +42,38 @@ def setup():
                 print worddata
                 d = urllib2.urlopen(POSTWORD_URL, urllib.urlencode(worddata))
 
-        elif sheet.name == u"穴埋め":
+        elif sheet.name == u"穴埋め" and fill:
             for r in xrange(sheet.nrows):
                 row = sheet.row(r)
+                if int(row[2].value) < fill_start: continue
                 soup = BS(urllib2.urlopen(POSTFILL_URL).read())
                 filldata = {"number":int(row[2].value),
-                            "question":row[3].value.encode("utf-8"),
+                            "question":row[3].value.strip().replace("(      )", "( )").replace("(     )", "( )").replace("(    )", "( )").replace("(   )", "( )").replace("(  )", "( )").encode("utf-8"),
                             "japanese":row[4].value.encode("utf-8"),
-                            "answer":row[5].value.encode("utf-8"),
+                            "answer":row[5].value.strip().replace("0,0", "00").replace(" , ", ",").replace(" ,", ",").replace(", ", ",").replace(" ", ",").encode("utf-8"),
                             "csrfmiddlewaretoken":soup.find("input", {"id":'csrfmiddlewaretoken'}).get("value")}
                 print filldata
-                urllib2.urlopen(POSTFILL_URL, urllib.urlencode(filldata))
+                fd = urllib2.urlopen(POSTFILL_URL, urllib.urlencode(filldata))
+                out = open("error.html", "w")
+                out.write(fd.read())
+                out.close()
+                fd.close()
+                
 
 if __name__ == "__main__":
-    setup()
+    import sys
+    i = 0
+    word = False
+    fill = False
+    word_start = 0
+    fill_start = 0
+    while i < len(sys.argv)-1:
+        if sys.argv[1+i][:2] == "-w":
+            word = True
+            word_start = int(sys.argv[1+i][2:])
+        elif sys.argv[1+i][:2] == "-f":
+            fill = True
+            fill_start = int(sys.argv[1+i][2:])
+        i += 1
+        
+    setup(word, word_start, fill, fill_start)

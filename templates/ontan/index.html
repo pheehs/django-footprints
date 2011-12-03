@@ -18,11 +18,19 @@
     </form>
   </div>
 </div>
-<!--
+
 <div>
   <h3>穴埋め問題</h3>
   <div><a href="/ontan/fillquestions/1/">登場する全問題一覧</a></div>
-  <div><a href="/ontan/fillquestions/exam/">ランダム出題</a></div>
+  <div>
+    <p>ランダム出題　…　一問一答と同じ。</p>
+    <form method="GET" action="/ontan/fillquestions/exam/">
+      <p>　出題語数<input name="show" value="50" /></p>
+      <p>　開始番号<input name="start" value="551" /></p>
+      <p>　終了番号<input name="end" value="800" /></p>
+      <p>　<input type="submit" value="開始" /></p>
+    </form>
+  </div>
 </div>
--->
+
 {% endblock body %}

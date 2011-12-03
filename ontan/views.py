@@ -88,9 +88,10 @@ def post_fillquestion_view(request):
                                       {"user":request.user,
                                        "error":"入力エラー：答え"})
         if question.count("( )") != len(answer.split(",")):
+            raise Http404 # for debug
             return render_to_response("ontan/post_fillquestion.html",
                                       {"user":request.user,
-                                       "error":"問題分と和訳で空白の数が違います。"})
+                                       "error":"問題分(%d)と答え(%d)で空白の数が違います。" % (question.count("( )"), len(answer.split(","))) })
         # save
         wq = FillQuestion(number=number, question=question, japanese=japanese, answer=answer, author=request.user)
         wq.save()
@@ -123,9 +124,17 @@ def fillquestions_view(request, pagenum):
     if maxpage < pagenum:
         return HttpResponseRedirect("/ontan/")
     else:
+        questions = []
+        for fq in FillQuestion.objects.all()[(pagenum-1)*100:pagenum*100]:
+            question_html = []
+            for i in range(len(fq.answer.split(","))):
+                question_html.append((False, fq.question.split("( )")[i]))
+                question_html.append((True, fq.answer.split(",")[i]))
+            question_html.append((False, fq.question.split("( )")[-1]))
+            questions.append((fq, question_html))
         return render_to_response("ontan/fillquestions.html",
                                   {"user":request.user,
-                                   "questions":FillQuestion.objects.all()[(pagenum-1)*100:pagenum*100],
+                                   "questions":questions,
                                    "pages":[(p, "/ontan/fillquestions/%d/" % p) for p in xrange(1, maxpage+1)],
                                    "cur_page":pagenum, 
                                    "next_page":"/ontan/fillquestions/%d/" % (pagenum+1),
@@ -169,8 +178,50 @@ def exam_wordquestions_view(request):
                                "questions":[WordQuestion.objects.get(pk=pk) for pk in rand_questions_pk]})
 
 def exam_fillquestions_view(request):
+    show_num = request.GET.get("show", "50")
+    start_num = request.GET.get("start", "1")
+    end_num = request.GET.get("end", "1200")
+    all_fq_num = FillQuestion.objects.count()
+    try:
+        show_num = int(show_num)
+    except (ValueError, TypeError):
+        show_num = 50
+    else:
+        if 0 > show_num or show_num > all_fq_num:
+            show_num = 50
+    try:
+        start_num = int(start_num)
+    except (ValueError, TypeError):
+        start_num = 1
+    else:
+        if 1 > start_num or start_num > all_fq_num:
+            start_num = 1
+    try:
+        end_num = int(end_num)
+    except (ValueError, TypeError):
+        end_num = 1200
+    else:
+        if 1 > end_num or end_num > all_fq_num:
+            end_num = 1200
+    all_questions_pk = [fq.pk for fq in FillQuestion.objects.all()[start_num-1:end_num+1]]
+    rand_questions_pk = []
+    for i in xrange(show_num):
+        r = random.randint(0, len(all_questions_pk)-1)
+        rand_questions_pk.append(all_questions_pk.pop(r))
+        
+    questions = []
+    for pk in rand_questions_pk:
+        fq = FillQuestion.objects.get(pk=pk)
+        question_html = []
+        for i in range(len(fq.answer.split(","))):
+            question_html.append((False, fq.question.split("( )")[i]))
+            question_html.append((True, fq.answer.split(",")[i]))
+        question_html.append((False, fq.question.split("( )")[-1]))
+        questions.append((fq, question_html))
+
     return render_to_response("ontan/exam_fillquestions.html",
                               {"user":request.user,
+                               "questions":questions,
                                })
     
 def login_view(request):

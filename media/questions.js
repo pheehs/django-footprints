@@ -46,14 +46,14 @@ function hide_word(qnum){
 
 }
 
-function show_fill(qnum){
-    var question_tr = document.getElementById("question"+qnum);
-    var childs = question_tr.childNodes;
+function show_fill(blankid){
+    var blank_span = document.getElementById("blank"+blankid);
     
+    blank_span.style.cssText = "color:#000000;";
 }
 
-function hide_fill(qnum){
-    var question_tr = document.getElementById("question"+qnum);
-    var childs = question_tr.childNodes;
-
+function hide_fill(blankid){
+    var blank_span = document.getElementById("blank"+blankid);
+    
+    blank_span.style.cssText = "color:#FFFFFF;";
 }

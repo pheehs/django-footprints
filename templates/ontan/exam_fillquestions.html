@@ -8,7 +8,24 @@
 
 {% block body %}
 <h2 id="title">ランダム出題of穴埋め問題</h2>
-
+<table border="1">
+  <tr><td>問題番号</td><td>問題文</td><td>和訳</td></tr>
+  {% for fq, html_list in questions %}
+  <tr id="question{{ fq.number }}">
+    <td>{{ fq.number }}</td>
+    <td>
+      {% for blank, words in html_list %}
+        {% if blank %}
+          (<span id="blank{{ fq.number }}-{{ forloop.counter0 }}" onmouseover="show_fill('{{ fq.number }}-{{ forloop.counter0 }}');" onmouseout="hide_fill('{{ fq.number }}-{{ forloop.counter0 }}');" style="color:#FFFFFF;">{{ words }}</span>)
+	{% else %}
+	  {{ words }}
+        {% endif %}
+      {% endfor %}
+    </td>
+    <td>{{ fq.japanese }}</td>
+  </tr>
+  {% endfor %}
+</table>
 
 <p><a href="#title">上へ戻る</a></p>
 {% endblock body %}
