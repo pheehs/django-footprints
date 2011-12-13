@@ -183,3 +183,4 @@ def send_correction_view(request):
                                           mimetype="application/xhtml+xml")
             return render_to_response("footprints/corrected.xml",
                                       mimetype="application/xhtml+xml")
+
