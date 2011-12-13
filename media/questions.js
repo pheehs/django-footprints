@@ -49,11 +49,27 @@ function hide_word(qnum){
 function show_fill(blankid){
     var blank_span = document.getElementById("blank"+blankid);
     
-    blank_span.style.cssText = "color:#000000;";
+    blank_span.style.cssText = "color:#FF3300;";
 }
 
 function hide_fill(blankid){
     var blank_span = document.getElementById("blank"+blankid);
     
     blank_span.style.cssText = "color:#FFFFFF;";
+}
+
+function show_all_fill(qnum){
+    var all_blank = document.getElementById("question"+qnum).getElementsByTagName("span");
+    
+    for (var i = 0; i < all_blank.length; i++){
+	show_fill(all_blank[i].id.replace("blank", ""));
+    }
+}
+
+function hide_all_fill(qnum){
+    var all_blank = document.getElementById("question"+qnum).getElementsByTagName("span");
+
+    for (var i = 0; i < all_blank.length; i++){
+	hide_fill(all_blank[i].id.replace("blank", ""));
+    }
 }

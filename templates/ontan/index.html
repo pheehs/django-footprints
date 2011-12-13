@@ -3,12 +3,14 @@
 {% block title %}TOP{% endblock %}
 
 {% block body %}
-<h2>On-tan</h2>
-<div>
+<h2 id="title">On-tan</h2>
+<div class="clear"><hr /></div>
+
+<div id="wordq_detail">
   <h3>一問一答</h3>
   <div><a href="/ontan/wordquestions/1/">登場する全単語一覧</a></div>
   <div>
-    <p>ランダム出題　…　開始番号～終了番号の中の問題から出題語数の数だけランダムで出題。</p>
+    <p>ランダム出題</p>
     <p>　デフォルトの設定範囲は2011/12の期末試験に対応。</p>
     <form method="GET" action="/ontan/wordquestions/exam/">
       <p>　出題語数<input name="show" value="50" /></p>
@@ -19,11 +21,11 @@
   </div>
 </div>
 
-<div>
+<div id="fillq_detail">
   <h3>穴埋め問題</h3>
   <div><a href="/ontan/fillquestions/1/">登場する全問題一覧</a></div>
   <div>
-    <p>ランダム出題　…　一問一答と同じ。</p>
+    <p>ランダム出題</p>
     <form method="GET" action="/ontan/fillquestions/exam/">
       <p>　出題語数<input name="show" value="50" /></p>
       <p>　開始番号<input name="start" value="551" /></p>
@@ -32,5 +34,5 @@
     </form>
   </div>
 </div>
-
+<div class="clear"><hr /></div>
 {% endblock body %}

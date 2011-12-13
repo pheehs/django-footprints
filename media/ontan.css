@@ -1,0 +1,27 @@
+body {  }
+
+#wrap {
+    margin: 0 auto;
+}
+
+#title {
+    float: left;
+}
+
+#footer {
+    margin: 0 auto;
+    text-align: center;
+}
+
+#wordq_detail {
+    float: left;
+    width: 50%;
+}
+
+#fillq_detail {
+    float: right;
+    width: 50%;
+}
+
+.clear { clear:both; }
+.clear hr { display:none; }

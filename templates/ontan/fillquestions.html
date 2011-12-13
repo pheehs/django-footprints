@@ -8,6 +8,8 @@
 
 {% block body %}
 <h2 id="title">全問題一覧of穴埋め問題</h2>
+<div class="clear"><hr /></div>
+
 <p>
   {% ifnotequal cur_page 1 %}
   <a href="{{ prev_page }}">前へ</a>
@@ -27,7 +29,7 @@
   <tr><td>問題番号</td><td>問題文</td><td>和訳</td></tr>
   {% for fq, html_list in questions %}
   <tr id="question{{ fq.number }}">
-    <td>{{ fq.number }}</td>
+    <td onmouseover="show_all_fill({{ fq.number }})" onmouseout="hide_all_fill({{ fq.number }})">{{ fq.number }}</td>
     <td>
       {% for blank, words in html_list %}
         {% if blank %}
