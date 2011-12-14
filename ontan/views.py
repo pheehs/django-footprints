@@ -4,7 +4,7 @@
 from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404, get_list_or_404
 from django.contrib.auth import login, logout, authenticate
-from django.db.models import Q
+#from django.db.models import Q
 from django.core.exceptions import ObjectDoesNotExist
 from pythxsh.ontan.models import *
 import random
@@ -234,7 +234,7 @@ def exam_fillquestions_view(request):
                               {"user":request.user,
                                "questions":questions,
                                })
-
+"""
 def search_questions_view(request):
     Qobj = Q()
     keywords = request.GET.get("keywords", "").strip()
@@ -254,7 +254,7 @@ def search_questions_view(request):
         
     return render_to_response("ontan/result_questions.html",
                               {"user":request.user, })
-
+"""
 def login_view(request):
     if request.user.is_authenticated():
         return HttpResponse("すでにログインしています。")
