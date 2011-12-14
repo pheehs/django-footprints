@@ -13,15 +13,5 @@ body {  }
     text-align: center;
 }
 
-#wordq_detail {
-    float: left;
-    width: 50%;
-}
-
-#fillq_detail {
-    float: right;
-    width: 50%;
-}
-
 .clear { clear:both; }
 .clear hr { display:none; }

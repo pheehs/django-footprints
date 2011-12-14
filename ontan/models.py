@@ -20,9 +20,9 @@ class WordQuestion(models.Model):
 class FillQuestion(models.Model):
     #穴埋め問題
     number = models.IntegerField("問題番号")
-    question = models.CharField("問題文", max_length=80, help_text="穴埋めの空白は「(     )」で表す。")
+    question = models.CharField("問題文", max_length=80, help_text="穴埋めの空白は「( )」で表す。")
     japanese = models.CharField("和訳", max_length=80)
-    answer = models.CharField("答え", max_length=50, help_text="答えは「, 」(カンマとスペース1つ)で区切る。")
+    answer = models.CharField("答え", max_length=50, help_text="答えは「,」(カンマ)で区切る。")
     author = models.ForeignKey(User)
     create_at = models.DateTimeField("作成日時", default=datetime.datetime.now())
     

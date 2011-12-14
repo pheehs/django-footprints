@@ -6,33 +6,28 @@
 <h2 id="title">On-tan</h2>
 <div class="clear"><hr /></div>
 
-<div id="wordq_detail">
+<div>
   <h3>一問一答</h3>
   <div><a href="/ontan/wordquestions/1/">登場する全単語一覧</a></div>
+  <h3>穴埋め問題</h3>
+  <div><a href="/ontan/fillquestions/1/">登場する全問題一覧</a></div>
+
   <div>
     <p>ランダム出題</p>
     <p>　デフォルトの設定範囲は2011/12の期末試験に対応。</p>
-    <form method="GET" action="/ontan/wordquestions/exam/">
-      <p>　出題語数<input name="show" value="50" /></p>
-      <p>　開始番号<input name="start" value="551" /></p>
-      <p>　終了番号<input name="end" value="800" /></p>
-      <p>　<input type="submit" value="開始" /></p>
+    <form method="GET" name="exam">
+      <select name="range" size="6" multiple="multiple">
+	{% for start_sect,end_sect,selected in tests %}
+	<option value="{{ forloop.counter }}" {% if selected %}selected="selected"{% endif %}>
+	   第{{ forloop.counter }}回小テスト(Section{{ start_sect }}-{{ end_sect }})
+	</option>
+	{% endfor %}
+      </select>
+      <p>　出題語数<input name="show" value="15" /></p>
+      <p>　<input type="button" value="一問一答" onclick="onclick_start('/ontan/wordquestions/exam/');" /> <input type="button" value="穴埋め問題" onclick="onclick_start('/ontan/fillquestions/exam/');" /></p>
     </form>
   </div>
 </div>
 
-<div id="fillq_detail">
-  <h3>穴埋め問題</h3>
-  <div><a href="/ontan/fillquestions/1/">登場する全問題一覧</a></div>
-  <div>
-    <p>ランダム出題</p>
-    <form method="GET" action="/ontan/fillquestions/exam/">
-      <p>　出題語数<input name="show" value="50" /></p>
-      <p>　開始番号<input name="start" value="551" /></p>
-      <p>　終了番号<input name="end" value="800" /></p>
-      <p>　<input type="submit" value="開始" /></p>
-    </form>
-  </div>
-</div>
 <div class="clear"><hr /></div>
 {% endblock body %}

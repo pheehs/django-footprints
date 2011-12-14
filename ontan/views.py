@@ -4,15 +4,26 @@
 from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.shortcuts import render_to_response, get_object_or_404, get_list_or_404
 from django.contrib.auth import login, logout, authenticate
-#from django.db.models import Q
+from django.db.models import Q
 from django.core.exceptions import ObjectDoesNotExist
 from pythxsh.ontan.models import *
 import random
 
 
 def index_view(request):
+    # Later changeable
+    selected_tests = [12, 13, 14, 15, 16]
+    # data for template
+    tests_data = []
+    for i in xrange(1, WordQuestion.objects.count() / 50 + 1):
+        if i in selected_tests:
+            tests_data.append((i*2-1, i*2, True))
+        else:
+            tests_data.append((i*2-1, i*2, False))
+    
     return render_to_response("ontan/index.html",
-                              {"user":request.user})
+                              {"user":request.user,
+                               "tests":tests_data, })
 
 def post_wordquestion_view(request):
     if not request.user.is_authenticated():
@@ -142,32 +153,32 @@ def fillquestions_view(request, pagenum):
                                    "max_page":maxpage})
 
 def exam_wordquestions_view(request):
-    show_num = request.GET.get("show", "50")
-    start_num = request.GET.get("start", "1")
-    end_num = request.GET.get("end", "1200")
-    all_wq_num = WordQuestion.objects.count()
+    # const
+    test_list = []
+    test_num = WordQuestion.objects.count() / 50
+    # GET parameters
+    show_num = request.GET.get("show", "15")
+    query = request.GET.copy()
+    query.setlistdefault("range", [str(i) for i in range(1, test_num+1)])
+    test_range = query.getlist("range")
+    # show_num input validation
     try:
         show_num = int(show_num)
     except (ValueError, TypeError):
-        show_num = 50
+        show_num = 15
     else:
-        if 0 > show_num or show_num > all_wq_num:
-            show_num = 50
-    try:
-        start_num = int(start_num)
-    except (ValueError, TypeError):
-        start_num = 1
-    else:
-        if 1 > start_num or start_num > all_wq_num:
-            start_num = 1
-    try:
-        end_num = int(end_num)
-    except (ValueError, TypeError):
-        end_num = 1200
-    else:
-        if 1 > end_num or end_num > all_wq_num:
-            end_num = 1200
-    all_questions_pk = [wq.pk for wq in WordQuestion.objects.all()[start_num-1:end_num+1]]
+        if 0 > show_num or show_num > 1000:
+            show_num = 15
+    # test_range input validation
+    for tr in test_range:
+        try:
+            tr = int(tr)
+        except (ValueError, TypeError):
+            pass
+        else:
+            if 1 <= tr <= test_num:
+                test_list.append(tr)
+    all_questions_pk = [WordQuestion.objects.get(number=i).pk  for t in test_list for i in xrange((t-1)*50+1, t*50+1)]
     rand_questions_pk = []
     for i in xrange(show_num):
         r = random.randint(0, len(all_questions_pk)-1)
@@ -178,32 +189,32 @@ def exam_wordquestions_view(request):
                                "questions":[WordQuestion.objects.get(pk=pk) for pk in rand_questions_pk]})
 
 def exam_fillquestions_view(request):
-    show_num = request.GET.get("show", "50")
-    start_num = request.GET.get("start", "1")
-    end_num = request.GET.get("end", "1200")
-    all_fq_num = FillQuestion.objects.count()
+    # const
+    test_list = []
+    test_num = FillQuestion.objects.count() / 50
+    # GET parameters
+    show_num = request.GET.get("show", "15")
+    query = request.GET.copy()
+    query.setlistdefault("range", [str(i) for i in range(1, test_num+1)])
+    test_range = query.getlist("range")
+    # show_num input validation
     try:
         show_num = int(show_num)
     except (ValueError, TypeError):
-        show_num = 50
+        show_num = 15
     else:
-        if 0 > show_num or show_num > all_fq_num:
-            show_num = 50
-    try:
-        start_num = int(start_num)
-    except (ValueError, TypeError):
-        start_num = 1
-    else:
-        if 1 > start_num or start_num > all_fq_num:
-            start_num = 1
-    try:
-        end_num = int(end_num)
-    except (ValueError, TypeError):
-        end_num = 1200
-    else:
-        if 1 > end_num or end_num > all_fq_num:
-            end_num = 1200
-    all_questions_pk = [fq.pk for fq in FillQuestion.objects.all()[start_num-1:end_num+1]]
+        if 0 > show_num or show_num > 1000:
+            show_num = 15
+    # test_range input validation
+    for tr in test_range:
+        try:
+            tr = int(tr)
+        except (ValueError, TypeError):
+            pass
+        else:
+            if 1 <= tr <= test_num:
+                test_list.append(tr)
+    all_questions_pk = [FillQuestion.objects.get(number=i).pk  for t in test_list for i in xrange((t-1)*50+1, t*50+1)]
     rand_questions_pk = []
     for i in xrange(show_num):
         r = random.randint(0, len(all_questions_pk)-1)
@@ -223,7 +234,27 @@ def exam_fillquestions_view(request):
                               {"user":request.user,
                                "questions":questions,
                                })
-    
+
+def search_questions_view(request):
+    Qobj = Q()
+    keywords = request.GET.get("keywords", "").strip()
+    if not keywords:
+        return render_to_response("ontan/search_questions.html",
+                                  {"user":request.user, })
+    wquery = WordQuestion.objects
+    fquery = FillQuestion.objects
+    for keyword in keywords.split(" "):
+        wquery = wquery.filter(
+            Q(question__icontain=keyword) | Q(answer__icontain=keyword)
+            )
+        fquery = fquery.filter(
+            Q(question__icontain=keyword) | Q(japanese__icontain=keyword) | Q(answer__icontain=keyword)
+            )
+    if wquery.count() > 0:
+        
+    return render_to_response("ontan/result_questions.html",
+                              {"user":request.user, })
+
 def login_view(request):
     if request.user.is_authenticated():
         return HttpResponse("すでにログインしています。")

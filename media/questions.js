@@ -5,11 +5,26 @@ questions.js
 
 var hide_mode = "en";
 
+function onclick_start(action) {
+    var form = document.exam;
+    
+    form.action = action
+    form.submit()
+}
+
+function link_to_word(qnum) {
+    window.location="/ontan/wordquestions/" + (parseInt((qnum-1) / 100) + 1) + "/#question" + qnum;
+}
+
+function link_to_fill(qnum) {
+    window.location="/ontan/fillquestions/" + (parseInt((qnum-1) / 100) + 1) + "/#question" + qnum;
+}
+
 function change_mode(){
     var all_tr = document.getElementsByTagName("tr");
     
     for (var i = 1;i < all_tr.length;i++){
-	show_word(all_tr[i].childNodes[0].innerHTML);
+	show_word(all_tr[i].childNodes[0].innerHTML, true);
     }
     hide_mode = ["en","ja"][document.getElementById("hide_select").selectedIndex];
     for (var i = 1;i < all_tr.length;i++){
@@ -17,16 +32,18 @@ function change_mode(){
     }
 
 }
-function show_word(qnum){
+function show_word(qnum, in_change){
     var question_tr = document.getElementById("question"+qnum);
     var childs = question_tr.childNodes;
+    if (in_change == true) { var color = "color:#000000;"; }
+    else {var color = "color:#FF3300;";}
 
     switch (hide_mode){
     case "en":
-	childs[2].style.cssText = "color:#000000;";
+	childs[2].style.cssText = color;
 	break;
     case "ja":
-	childs[1].style.cssText = "color:#000000;";
+	childs[1].style.cssText = color;
 	break;
     }
 }
