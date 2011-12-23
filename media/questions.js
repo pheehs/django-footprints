@@ -20,18 +20,34 @@ function link_to_fill(qnum) {
     window.location="/ontan/fillquestions/" + (parseInt((qnum-1) / 100) + 1) + "/#question" + qnum;
 }
 
-function change_mode(){
+function change_lang(){
     var all_tr = document.getElementsByTagName("tr");
     
     for (var i = 1;i < all_tr.length;i++){
 	show_word(all_tr[i].childNodes[0].innerHTML, true);
     }
-    hide_mode = ["en","ja"][document.getElementById("hide_select").selectedIndex];
+    hide_mode = ["en","ja"][document.getElementById("lang_select").selectedIndex];
     for (var i = 1;i < all_tr.length;i++){
 	hide_word(all_tr[i].childNodes[0].innerHTML);
     }
-
 }
+
+function change_mode() {
+    var all_tr = document.getElementsByTagName("tr");
+    
+    switch (document.getElementById("mode_select").selectedIndex) {
+    case 0:
+	console.log("mouseover_mode")
+	for (var i = 1; i < all_tr.length; i++) {
+	    all_tr[i].childNodes
+	}
+	break
+    case 1:
+        console.log("input_mode")
+	break
+    }
+}
+
 function show_word(qnum, in_change){
     var question_tr = document.getElementById("question"+qnum);
     var childs = question_tr.childNodes;

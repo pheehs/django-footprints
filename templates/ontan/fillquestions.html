@@ -21,7 +21,7 @@
   <a href="{{ next_page }}">次へ</a>
   {% endifnotequal %}
 </p>
-<table border="1">
+<table class="qtable" border="1">
   <tr><td>問題番号</td><td>問題文</td><td>和訳</td></tr>
   {% for fq, html_list in questions %}
   <tr id="question{{ fq.number }}">

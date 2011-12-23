@@ -1,13 +1,14 @@
-body {  }
+body { 
+   text-align: center;
+}
 
 #wrap {
     margin: 0 auto;
 }
 
 #title {
-    float: left;
+   
 }
-
 #footer {
     margin: 0 auto;
     text-align: center;
@@ -15,3 +16,21 @@ body {  }
 
 .clear { clear:both; }
 .clear hr { display:none; }
+
+
+.qtable {
+   margin: 0 auto;
+}
+.qblock{
+   border: 1px dashed #6A8AD3;
+   padding: 5px 5px 5px 5px;
+   background: #ffffff;
+   width: 150px;
+}
+.rand_block{
+   margin: 0 auto;
+   border: 2px double #6A8AD3;
+   padding: 5px 5px 5px 5px;
+   background: #ffffff;
+   width: 400px;
+}

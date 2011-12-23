@@ -5,25 +5,37 @@
 {% block body %}
 <h2 id="title">On-tan</h2>
 <div class="clear"><hr /></div>
-
+<img src="/media/dame.png" alt="音単サボリ　ダメ。ゼッタイ。" width="20%">
 <div>
-  <h3>一問一答</h3>
-  <div><a href="/ontan/wordquestions/1/">登場する全単語一覧</a></div>
-  <h3>穴埋め問題</h3>
-  <div><a href="/ontan/fillquestions/1/">登場する全問題一覧</a></div>
-
-  <div>
-    <p>ランダム出題</p>
-    <p>　デフォルトの設定範囲は2011/12の期末試験に対応。</p>
+  <table class="qtable">
+    <tr>
+      <td class="qblock">
+	<h3>一問一答</h3>
+	<div><a href="/ontan/wordquestions/1/">登場する全単語一覧</a></div>
+      </td>
+      <td class="qblock">
+	<h3>穴埋め問題</h3>
+	<div><a href="/ontan/fillquestions/1/">登場する全問題一覧</a></div>
+      </td>
+    </tr>
+  </table>
+  
+  <div class="rand_block">
+    <h3>ランダム出題</h3>
+    <p>
+      　デフォルトの設定範囲は<br />「全問正解するまで帰れま１０」(1/10 10:30から)に対応。<br />
+      12/22〜1/6のうちにクラス、出席番号、氏名を書いたメールを送ってエントリーだ！ <br />
+      <a href="mailto:uchida@kaijo.ed.jp?subject=音単エントリー">今すぐエントリー！！</a>
+    </p>
     <form method="GET" name="exam">
-      <select name="range" size="6" multiple="multiple">
+      <select name="range" size="10" multiple="multiple">
 	{% for start_sect,end_sect,selected in tests %}
 	<option value="{{ forloop.counter }}" {% if selected %}selected="selected"{% endif %}>
 	   第{{ forloop.counter }}回小テスト(Section{{ start_sect }}-{{ end_sect }})
 	</option>
 	{% endfor %}
       </select>
-      <p>　出題語数<input name="show" value="15" /></p>
+      <p>　出題語数<input name="show" value="10" /></p>
       <p>　<input type="button" value="一問一答" onclick="onclick_start('/ontan/wordquestions/exam/');" /> <input type="button" value="穴埋め問題" onclick="onclick_start('/ontan/fillquestions/exam/');" /></p>
     </form>
   </div>

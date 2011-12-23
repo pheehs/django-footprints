@@ -7,10 +7,14 @@
 <div class="clear"><hr /></div>
 
 <p>
-  <select id="hide_select" onchange="change_mode();">
+  <select id="lang_select" onchange="change_lang();">
     <option>英語を隠す</option>
     <option>日本語を隠す</option>
   </select>
+  <!-- <select id="mode_select" onchange="change_mode();">
+    <option>マウスオーバーで答えを表示</option>
+    <option>答えを入力</option>
+  </select> -->
 </p>
 <p>
   {% ifnotequal cur_page 1 %}
@@ -27,7 +31,7 @@
   <a href="{{ next_page }}">次へ</a>
   {% endifnotequal %}
 </p>
-<table border="1" id="questions_table">
+<table class="qtable" border="1" id="questions_table">
   <tr><td>問題番号</td><td>日本語</td><td>英語</td></tr>
   {% for wq in questions %}
   <tr id="question{{ wq.number }}" onmouseover="show_word({{ wq.number }}, false);" onmouseout="hide_word({{ wq.number }});"><td onclick="link_to_fill({{ wq.number }})">{{ wq.number }}</td><td>{{ wq.question }}</td><td style="color:#FFFFFF;">{{ wq.answer }}</td></tr>

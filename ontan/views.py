@@ -12,7 +12,7 @@ import random
 
 def index_view(request):
     # Later changeable
-    selected_tests = [12, 13, 14, 15, 16]
+    selected_tests = [9, 10, 11, 12, 13, 14, 15, 16]
     # data for template
     tests_data = []
     for i in xrange(1, WordQuestion.objects.count() / 50 + 1):
