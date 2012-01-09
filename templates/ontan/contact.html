@@ -1,0 +1,26 @@
+{% extends "ontan/base.html" %}
+
+{% block title %}お問い合わせ{% endblock %}
+
+{% block body %}
+<h2>お問い合わせ</h2>
+<p>問題の間違いや要望などを募集しています。</p>
+<form action="" method="POST">
+  <p style="color:#FF0000; font-width:bold;" required>名前*：
+    <input type="text" name="name" default="{% if user.is_authenticated %}{{ user.name }}{% endif %}">
+  </p>
+  <p style="font-width:bold;">Emailアドレス：
+    <input type="text" name="email" default="{% if user.is_authenticated %}{{ user.email }}{% endif %}">
+  </p>
+  <p style="font-width:bold;">タイトル：
+    <input type="text" name="title" default="無題">
+  </p>
+  <p style="color:#FF0000; font-width:bold;">本文*：<br />
+    <textarea name="body" cols="30" rows="4" required>
+ここに本文
+    </textarea>
+  </p>
+  <p><input type="submit" value="送信">
+</form>
+
+{% endblock %}

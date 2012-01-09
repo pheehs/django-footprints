@@ -6,6 +6,8 @@ from django.shortcuts import render_to_response, get_object_or_404, get_list_or_
 from django.contrib.auth import login, logout, authenticate
 #from django.db.models import Q
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.mail import mail_admins
+from smtplib import SMTPException
 from pythxsh.ontan.models import *
 import random
 
@@ -178,6 +180,10 @@ def exam_wordquestions_view(request):
         else:
             if 1 <= tr <= test_num:
                 test_list.append(tr)
+    # validate
+    if show_num > len(test_list) * 25:
+        show_num = 15
+        
     all_questions_pk = [WordQuestion.objects.get(number=i).pk  for t in test_list for i in xrange((t-1)*50+1, t*50+1)]
     rand_questions_pk = []
     for i in xrange(show_num):
@@ -304,3 +310,28 @@ def logout_view(request):
         return HttpResponseRedirect(nextpath)
     else:
         return HttpResponse("まだログインしていません。")
+
+def contact_view(request):
+    error = {}
+    if request.method == "POST":
+        name = request.POST.get("name")
+        email = request.POST.get("email")
+        title = request.POST.get("title")
+        body = request.POST.get("body")
+
+        if not body:
+            error["body"] = "何か入力してください。"
+        try:
+            mail_admins("From:%s Title:%s" % (name, title),
+                       "Email: %s\n" % email +
+                       "Message:\n" + 
+                       body,
+                       fail_silently=False)
+            return render_to_response("ontan/contact_.html",
+                                      {"user":request.user,})
+        except SMTPException:
+            error["top"] = "送信エラー"
+
+    return render_to_response("ontan/contact.html",
+                              {"user":request.user,
+                               "error":error,})

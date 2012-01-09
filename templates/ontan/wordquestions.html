@@ -3,7 +3,7 @@
 {% block title %}全単語一覧of一問一答{% endblock %}
 
 {% block body %}
-<h2 id="title">全単語一覧of一問一答</h2>
+<h2>全単語一覧of一問一答</h2>
 <div class="clear"><hr /></div>
 
 <p>
@@ -34,7 +34,7 @@
 <table class="qtable" border="1" id="questions_table">
   <tr><td>問題番号</td><td>日本語</td><td>英語</td></tr>
   {% for wq in questions %}
-  <tr id="question{{ wq.number }}" onmouseover="show_word({{ wq.number }}, false);" onmouseout="hide_word({{ wq.number }});"><td onclick="link_to_fill({{ wq.number }})">{{ wq.number }}</td><td>{{ wq.question }}</td><td style="color:#FFFFFF;">{{ wq.answer }}</td></tr>
+  <tr class="question" id="question{{ wq.number }}" onmouseover="show_word({{ wq.number }}, false);" onmouseout="hide_word({{ wq.number }});"><td class="qnum" onclick="link_to_fill({{ wq.number }})">{{ wq.number }}</td><td>{{ wq.question }}</td><td style="color:#FFFFFF;">{{ wq.answer }}</td></tr>
   {% endfor %}
 </table>
 <p>

@@ -14,23 +14,57 @@ body {
     text-align: center;
 }
 
+#topnavi{
+   text-align: center;
+   margin: 1px auto;
+   width: 460px;
+}
+#topnavi ul, #topnavi li{
+   list-style-type: none;
+   margin: 0;
+   padding: 0;
+}
+#topnavi a{
+   display: block;
+   padding: 0.5em 0;
+   width: 100%;
+   background-color: #F0F0F0;
+}
+#topnavi a:hover{
+   background-color: #DDDDDD;
+}
+#topnavi li{
+   position: relative;
+   float: left;
+   width: 110px;
+   margin: 0 0px;
+   padding: 0;
+   border: 1px solid #6A8AD3;
+}
+#topnavi li ul{
+   visibility: hidden;
+   position: absolute;
+   left: -2px;
+   border: 1px solid #6A8AD3;
+}
+#topnavi li:hover > ul{
+   visibility: visible;
+}
+
 .clear { clear:both; }
 .clear hr { display:none; }
 
 
-.qtable {
-   margin: 0 auto;
-}
-.qblock{
-   border: 1px dashed #6A8AD3;
-   padding: 5px 5px 5px 5px;
-   background: #ffffff;
-   width: 150px;
-}
 .rand_block{
    margin: 0 auto;
    border: 2px double #6A8AD3;
    padding: 5px 5px 5px 5px;
    background: #ffffff;
    width: 400px;
+}
+.qnum:hover{
+   background-color: #EECCEE;
+}
+.question:hover{
+   background-color: #EEFFFF;
 }
