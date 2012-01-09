@@ -62,6 +62,9 @@ body {
    background: #ffffff;
    width: 400px;
 }
+.qtable{
+   margin: 0 auto;
+}
 .qnum:hover{
    background-color: #EECCEE;
 }
