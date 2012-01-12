@@ -20,15 +20,31 @@ function link_to_fill(qnum) {
     window.location="/ontan/fillquestions/" + (parseInt((qnum-1) / 100) + 1) + "/#question" + qnum;
 }
 
-function change_lang(){
+function change_lang(is_exam){
     var all_tr = document.getElementsByTagName("tr");
-    
-    for (var i = 1;i < all_tr.length;i++){
-	show_word(all_tr[i].childNodes[0].innerHTML, true);
+
+    if (is_exam){
+	for (var i = 1;i < all_tr.length;i++){
+	    show_word(all_tr[i].childNodes[0].innerHTML.slice(0, all_tr[i].childNodes[0].innerHTML.indexOf("<")), true);
+	}
+    } else {
+	for (var i = 0;i < all_tr.length;i++){
+	    if (i % 26 != 0){
+		show_word(all_tr[i].childNodes[0].innerHTML, true);
+	    }
+	}
     }
     hide_mode = ["en","ja"][document.getElementById("lang_select").selectedIndex];
-    for (var i = 1;i < all_tr.length;i++){
-	hide_word(all_tr[i].childNodes[0].innerHTML);
+    if (is_exam){
+	for (var i = 1;i < all_tr.length;i++){
+	    hide_word(all_tr[i].childNodes[0].innerHTML.slice(0, all_tr[i].childNodes[0].innerHTML.indexOf("<")));
+	}
+    } else {
+	for (var i = 0;i < all_tr.length;i++){
+	    if (i % 26 != 0){
+		hide_word(all_tr[i].childNodes[0].innerHTML);
+	    }
+	}
     }
 }
 
@@ -60,7 +76,6 @@ function show_word(qnum, in_change){
 	break;
     case "ja":
 	childs[1].style.cssText = color;
-	break;
     }
 }
 

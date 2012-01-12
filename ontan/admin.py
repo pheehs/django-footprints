@@ -19,5 +19,22 @@ class FillQuestionAdmin(admin.ModelAdmin):
         ]
     list_display = ("number", "question", "japanese")
 
+class CheckedListAdmin(admin.ModelAdmin):
+    fieldsets = [
+        (None, {"fields":["user", "name"],
+                "description":u"<font color='red'><b>太字のものは必須入力事項です。</b></font>"}),
+        ]
+    list_display = ("user", "name")
+
+class CheckedQuestionAdmin(admin.ModelAdmin):
+    fieldsets = [
+        (None, {"fields":["belong", "create_at", "qnum"],
+                "description":u"<font color='red'><b>太字のものは必須入力事項です。</b></font>"}),
+        ]
+    list_display = ("belong", "create_at", "qnum")
+
+
 admin.site.register(WordQuestion, WordQuestionAdmin)
 admin.site.register(FillQuestion, FillQuestionAdmin)
+admin.site.register(CheckedList, CheckedListAdmin)
+admin.site.register(CheckedQuestion, CheckedQuestionAdmin)

@@ -16,6 +16,8 @@ class WordQuestion(models.Model):
 
     def __unicode__(self):
         return "WordQuestion(%d)" % self.number
+    def get_section(self):
+        return (self.number - 1) / 25 + 1
 
 class FillQuestion(models.Model):
     #穴埋め問題
@@ -28,4 +30,22 @@ class FillQuestion(models.Model):
     
     def __unicode__(self):
         return "FillQuestion(%d)" % self.number
+    def get_section(self):
+        return (self.number - 1) / 25 + 1
 
+class CheckedList(models.Model):
+    #リスト
+    user = models.ForeignKey(User)
+    name = models.CharField("リスト名", max_length=20)
+    
+    def __unicode__(self):
+        return "CheckedList(%s)" % self.name
+    
+class CheckedQuestion(models.Model):
+    #チェックした問題
+    belong = models.ForeignKey("CheckedList")
+    create_at = models.DateTimeField("追加日時", default=datetime.datetime.now())
+    qnum = models.IntegerField("問題番号")
+    
+    def __unicode__(self):
+        return "CheckedQuestion(No.%d)" % self.qnum

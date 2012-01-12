@@ -18,5 +18,9 @@ urlpatterns = patterns(
     (r'^fillquestions/(?P<pagenum>\d+)/$', "fillquestions_view"),
     (r'^fillquestions/exam/$', "exam_fillquestions_view"),
     (r'^contact/$', "contact_view"),
+    (r'^userinfo/checkedlist/(?P<cl_pk>\d+)/$', "checkedlist_view"),
+    (r'^userinfo/checkedlist/$', "checkedlist_view"),
+    (r'^userinfo/$', "userinfo_view"),
+#    (r'^user/(?P<username>\s+)/$', "others_view"),
 )
 

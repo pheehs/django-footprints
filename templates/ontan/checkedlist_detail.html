@@ -1,0 +1,22 @@
+{% extends "ontan/base.html" %}
+
+{% block title %}Myリスト:{{ clist.name }}{% endblock %}
+
+{% block body %}
+<h2>Myリスト:{{ clist.name }}</h2>
+<div class="clear"><hr /></div>
+
+<table border="1" class="qtable">
+  <tr><td>問題番号</td><td>追加日時</td></tr>
+  {% for q in questions %}
+  <tr>
+    <td>{{ q.qnum }}</td><td>{{ q.create_at }}</td>
+  </tr>
+  {% endfor %}
+</table>
+
+<div class="controls">
+  <p><a href="#title">上へ戻る</a></p>
+</div>
+
+{% endblock body %}

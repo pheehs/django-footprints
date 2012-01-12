@@ -14,7 +14,7 @@ import random
 
 def index_view(request):
     # Later changeable
-    selected_tests = [9, 10, 11, 12, 13, 14, 15, 16]
+    selected_tests = [17]
     # data for template
     tests_data = []
     for i in xrange(1, WordQuestion.objects.count() / 50 + 1):
@@ -32,7 +32,7 @@ def post_wordquestion_view(request):
         return render_to_response("ontan/post_wordquestion.html",
                                   {"user":request.user,
                                    "error":"ログインしてください。",
-                                   "redirect":"<a href='/ontan/login/?next=/ontan/post_wordquestion/'>ログイン</a>"})
+                                   "redirect":"<a href='/ontan/login/?next=%s'>ログイン</a>" % request.path})
     if request.method == "POST":
         number = request.POST.get("number")
         question = request.POST.get("question")
@@ -71,7 +71,7 @@ def post_fillquestion_view(request):
         return render_to_response("ontan/post_fillquestion.html",
                                   {"user":request.user,
                                    "error":"ログインしてください。",
-                                   "redirect":"<a href='/ontan/login/?next=/ontan/post_fillquestion/'>ログイン</a>"})
+                                   "redirect":"<a href='/ontan/login/?next=%s'>ログイン</a>" % request.path})
     if request.method == "POST":
         number = request.POST.get("number")
         question = request.POST.get("question")
@@ -121,9 +121,18 @@ def wordquestions_view(request, pagenum):
     if maxpage < pagenum:
         return HttpResponseRedirect("/ontan/")
     else:
+        questions = WordQuestion.objects.all()[(pagenum-1)*100:pagenum*100]
+        sections = [{"secnum":(pagenum-1)*4+1, "questions":[]}]
+        secnums = [(pagenum-1)*4+1, ]
+        for q in questions:
+            if len(sections[-1]["questions"]) >= 25:
+                sections.append({"secnum":q.get_section(), "questions":[]})
+                secnums.append(q.get_section())
+            sections[-1]["questions"].append(q)
         return render_to_response("ontan/wordquestions.html",
                                   {"user":request.user,
-                                   "questions":WordQuestion.objects.all()[(pagenum-1)*100:pagenum*100],
+                                   "secnums":secnums,
+                                   "sections":sections,
                                    "pages":[(p, "/ontan/wordquestions/%d/" % p) for p in xrange(1, maxpage+1)],
                                    "cur_page":pagenum, 
                                    "next_page":"/ontan/wordquestions/%d/" % (pagenum+1),
@@ -137,17 +146,21 @@ def fillquestions_view(request, pagenum):
     if maxpage < pagenum:
         return HttpResponseRedirect("/ontan/")
     else:
-        questions = []
+        sections = [{"secnum":(pagenum-1)*4+1, "questions":[]}]
+        secnums = [(pagenum-1)*4+1, ]
         for fq in FillQuestion.objects.all()[(pagenum-1)*100:pagenum*100]:
-            question_html = []
+            if len(sections[-1]["questions"]) >= 25:
+                sections.append({"secnum":fq.get_section(), "questions":[]})
+                secnums.append(fq.get_section())
+            sections[-1]["questions"].append((fq, []))
             for i in range(len(fq.answer.split(","))):
-                question_html.append((False, fq.question.split("( )")[i]))
-                question_html.append((True, fq.answer.split(",")[i]))
-            question_html.append((False, fq.question.split("( )")[-1]))
-            questions.append((fq, question_html))
+                sections[-1]["questions"][-1][1].append((False, fq.question.split("( )")[i]))
+                sections[-1]["questions"][-1][1].append((True, fq.answer.split(",")[i]))
+            sections[-1]["questions"][-1][1].append((False, fq.question.split("( )")[-1]))
         return render_to_response("ontan/fillquestions.html",
                                   {"user":request.user,
-                                   "questions":questions,
+                                   "sections":sections,
+                                   "secnums":secnums,
                                    "pages":[(p, "/ontan/fillquestions/%d/" % p) for p in xrange(1, maxpage+1)],
                                    "cur_page":pagenum, 
                                    "next_page":"/ontan/fillquestions/%d/" % (pagenum+1),
@@ -335,3 +348,25 @@ def contact_view(request):
     return render_to_response("ontan/contact.html",
                               {"user":request.user,
                                "error":error,})
+
+def userinfo_view(request):
+    return HttpResponse("準備中")
+
+def checkedlist_view(request, cl_pk=None):
+    if request.user.is_authenticated():
+        try:
+            cl_pk = int(cl_pk)
+        except (ValueError, TypeError):
+            clists = CheckedList.objects.filter(user=request.user)
+            return render_to_response("ontan/checkedlists.html",
+                                      {"user":request.user,
+                                       "clists":clists, })
+        else:
+            cl = CheckedList.objects.get(pk=cl_pk)
+            questions = CheckedQuestion.objects.filter(belong=cl)
+            return render_to_response("ontan/checkedlist_detail.html",
+                                      {"user":request.user,
+                                       "clist":cl,
+                                       "questions":questions, })
+    else:
+        return HttpResponseRedirect("/ontan/login/?next=%s" % request.path)

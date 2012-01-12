@@ -6,53 +6,61 @@
 <h2>全問題一覧of穴埋め問題</h2>
 <div class="clear"><hr /></div>
 
-<p>
-  {% ifnotequal cur_page 1 %}
-  <a href="{{ prev_page }}">前へ</a>
-  {% endifnotequal %}
-  {% for pnum, url in pages %}
-  {% ifequal pnum cur_page %}
-  <b><a href="{{ url }}">{{ pnum }}</a></b>
-  {% else %}
-  <a href="{{ url }}">{{ pnum }}</a>
-  {% endifequal %}
-  {% endfor %}
-  {% ifnotequal cur_page max_page %}
-  <a href="{{ next_page }}">次へ</a>
-  {% endifnotequal %}
-</p>
+<div class="controls">
+  <p>
+    {% ifnotequal cur_page 1 %}
+    <a href="{{ prev_page }}">前へ</a>
+    {% endifnotequal %}
+    {% for pnum, url in pages %}
+    <a href="{{ url }}" {% ifequal pnum cur_page %}class="cur_page"{% endifequal %}>{{ pnum }}</a>
+    {% endfor %}
+    {% ifnotequal cur_page max_page %}
+    <a href="{{ next_page }}">次へ</a>
+    {% endifnotequal %}
+  </p>
+  <p>
+    Section：&nbsp;
+    {% for secn in secnums %}
+    <a href="#section{{ secn }}">{{ secn }}</a>
+    {% endfor %}
+  </p>
+</div>
+
 <table class="qtable" border="1">
-  <tr><td>問題番号</td><td>問題文</td><td>和訳</td></tr>
-  {% for fq, html_list in questions %}
-  <tr class="question" id="question{{ fq.number }}">
-    <td class="qnum" onclick="link_to_word({{ fq.number }})" onmouseover="show_all_fill({{ fq.number }})" onmouseout="hide_all_fill({{ fq.number }})">{{ fq.number }}</td>
-    <td>
-      {% for blank, words in html_list %}
-        {% if blank %}
-          (<span id="blank{{ fq.number }}-{{ forloop.counter0 }}" onmouseover="show_fill('{{ fq.number }}-{{ forloop.counter0 }}');" onmouseout="hide_fill('{{ fq.number }}-{{ forloop.counter0 }}');" style="color:#FFFFFF;">{{ words }}</span>)
-	{% else %}
-	  {{ words }}
-        {% endif %}
-      {% endfor %}
-    </td>
-    <td>{{ fq.japanese }}</td>
-  </tr>
-  {% endfor %}
+  <tbody>
+    {% for sec in sections %}
+    <tr id="section{{ sec.secnum }}"><td class="section" colspan="3">Section{{ sec.secnum }}</td></tr>
+    {% for fq, html_list in sec.questions %}
+    <tr class="question" id="question{{ fq.number }}">
+      <td class="qnum" onclick="link_to_word({{ fq.number }})" onmouseover="show_all_fill({{ fq.number }})" onmouseout="hide_all_fill({{ fq.number }})">{{ fq.number }}</td>
+      <td>
+	{% for blank, words in html_list %}
+          {% if blank %}
+            (<span class="hid_anser" id="blank{{ fq.number }}-{{ forloop.counter0 }}" onmouseover="show_fill('{{ fq.number }}-{{ forloop.counter0 }}');" onmouseout="hide_fill('{{ fq.number }}-{{ forloop.counter0 }}');" style="color:#FFFFFF;">{{ words }}</span>)
+	  {% else %}
+	    {{ words }}
+          {% endif %}
+        {% endfor %}
+      </td>
+      <td>{{ fq.japanese }}</td>
+    </tr>
+    {% endfor %}
+    {% endfor %}
+  </tbody>
 </table>
-<p>
-  {% ifnotequal cur_page 1 %}
-  <a href="{{ prev_page }}">前へ</a>
-  {% endifnotequal %}
-  {% for pnum, url in pages %}
-  {% ifequal pnum cur_page %}
-  <b><a href="{{ url }}">{{ pnum }}</a></b>
-  {% else %}
-  <a href="{{ url }}">{{ pnum }}</a>
-  {% endifequal %}
-  {% endfor %}
-  {% ifnotequal cur_page max_page %}
-  <a href="{{ next_page }}">次へ</a>
-  {% endifnotequal %}
-</p>
-<p><a href="#title">上へ戻る</a></p>
+<div class="controls">
+  <p>
+    {% ifnotequal cur_page 1 %}
+    <a href="{{ prev_page }}">前へ</a>
+    {% endifnotequal %}
+    {% for pnum, url in pages %}
+    <a href="{{ url }}" {% ifequal pnum cur_page %}class="cur_page"{% endifequal %}>{{ pnum }}</a>
+    {% endfor %}
+    {% ifnotequal cur_page max_page %}
+    <a href="{{ next_page }}">次へ</a>
+    {% endifnotequal %}
+  </p>
+  <p><a href="#title">上へ戻る</a></p>
+</div>
+
 {% endblock body %}

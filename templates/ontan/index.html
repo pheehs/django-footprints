@@ -7,11 +7,6 @@
 <div>
   <div class="rand_block">
     <h3>ランダム出題</h3>
-    <p>
-      　デフォルトの設定範囲は<br />「全問正解するまで帰れま１０」(1/10 10:30から)に対応。<br />
-      エントリー募集期間は終了したが、申し込みなしでも行けば参加出来る可能性があるぞ！<br />
-      <em>来たる1/10に備えてもう一度復習しよう・・・！！</em>
-    </p>
     <form method="GET" name="exam">
       <select name="range" size="10" multiple="multiple">
 	{% for start_sect,end_sect,selected in tests %}
@@ -20,7 +15,7 @@
 	</option>
 	{% endfor %}
       </select>
-      <p>　出題語数<input name="show" value="10" /></p>
+      <p>　出題語数<input name="show" value="20" /></p>
       <p>　<input type="button" value="一問一答" onclick="onclick_start('/ontan/wordquestions/exam/');" /> <input type="button" value="穴埋め問題" onclick="onclick_start('/ontan/fillquestions/exam/');" /></p>
     </form>
   </div>

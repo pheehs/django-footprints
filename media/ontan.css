@@ -59,8 +59,12 @@ body {
    margin: 0 auto;
    border: 2px double #6A8AD3;
    padding: 5px 5px 5px 5px;
-   background: #ffffff;
+   background-color: #ffffff;
    width: 400px;
+}
+.cur_page{
+   font-weight: bold;
+   font-size: 1.5em;
 }
 .qtable{
    margin: 0 auto;
@@ -70,4 +74,14 @@ body {
 }
 .question:hover{
    background-color: #EEFFFF;
+}
+.section {
+   font-weight: boild;
+   background-color: #77FF77;
+}
+.controls{
+   margin: 8px auto;
+   border: 2px dotted #6A8AD3;
+   background-color: #FF9999;
+   width: 360px;
 }

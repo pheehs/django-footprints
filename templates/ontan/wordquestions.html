@@ -6,51 +6,58 @@
 <h2>全単語一覧of一問一答</h2>
 <div class="clear"><hr /></div>
 
-<p>
-  <select id="lang_select" onchange="change_lang();">
-    <option>英語を隠す</option>
-    <option>日本語を隠す</option>
-  </select>
-  <!-- <select id="mode_select" onchange="change_mode();">
-    <option>マウスオーバーで答えを表示</option>
+<div class="controls">
+  <p>
+    <select id="lang_select" onchange="change_lang();">
+      <option>英語を隠す</option>
+      <option>日本語を隠す</option>
+    </select>
+    <!-- <select id="mode_select" onchange="change_mode();">
+	 <option>マウスオーバーで答えを表示</option>
     <option>答えを入力</option>
-  </select> -->
-</p>
-<p>
-  {% ifnotequal cur_page 1 %}
-  <a href="{{ prev_page }}">前へ</a>
-  {% endifnotequal %}
-  {% for pnum, url in pages %}
-  {% ifequal pnum cur_page %}
-  <b><a href="{{ url }}">{{ pnum }}</a></b>
-  {% else %}
-  <a href="{{ url }}">{{ pnum }}</a>
-  {% endifequal %}
-  {% endfor %}
-  {% ifnotequal cur_page max_page %}
-  <a href="{{ next_page }}">次へ</a>
-  {% endifnotequal %}
-</p>
+      </select> -->
+  </p>
+  <p>
+    {% ifnotequal cur_page 1 %}
+    <a href="{{ prev_page }}">前へ</a>
+    {% endifnotequal %}
+    {% for pnum, url in pages %}
+    <a href="{{ url }}" {% ifequal pnum cur_page %}class="cur_page"{% endifequal %}>{{ pnum }}</a>
+    {% endfor %}
+    {% ifnotequal cur_page max_page %}
+    <a href="{{ next_page }}">次へ</a>
+    {% endifnotequal %}
+  </p>
+  <p>
+    Section：&nbsp;
+    {% for secn in secnums %}
+    <a href="#section{{ secn }}">{{ secn }}</a>
+    {% endfor %}
+  </p>
+</div>
 <table class="qtable" border="1" id="questions_table">
-  <tr><td>問題番号</td><td>日本語</td><td>英語</td></tr>
-  {% for wq in questions %}
-  <tr class="question" id="question{{ wq.number }}" onmouseover="show_word({{ wq.number }}, false);" onmouseout="hide_word({{ wq.number }});"><td class="qnum" onclick="link_to_fill({{ wq.number }})">{{ wq.number }}</td><td>{{ wq.question }}</td><td style="color:#FFFFFF;">{{ wq.answer }}</td></tr>
-  {% endfor %}
+  <tbody>
+    {% for sec in sections %}
+    <tr id="section{{ sec.secnum }}"><td class="section" colspan="3">Section{{ sec.secnum }}</td></tr>
+    {% for wq in sec.questions %}
+    <tr class="question" id="question{{ wq.number }}" onmouseover="show_word({{ wq.number }}, false);" onmouseout="hide_word({{ wq.number }});"><td class="qnum" onclick="link_to_fill({{ wq.number }})">{{ wq.number }}</td><td>{{ wq.question }}</td><td style="color:#FFFFFF;">{{ wq.answer }}</td></tr>
+    {% endfor %}
+    {% endfor %}
+  </tbody>
 </table>
-<p>
-  {% ifnotequal cur_page 1 %}
-  <a href="{{ prev_page }}">前へ</a>
-  {% endifnotequal %}
-  {% for pnum, url in pages %}
-  {% ifequal pnum cur_page %}
-  <b><a href="{{ url }}">{{ pnum }}</a></b>
-  {% else %}
-  <a href="{{ url }}">{{ pnum }}</a>
-  {% endifequal %}
-  {% endfor %}
-  {% ifnotequal cur_page max_page %}
-  <a href="{{ next_page }}">次へ</a>
-  {% endifnotequal %}
-</p>
-<p><a href="#title">上へ戻る</a></p>
+<div class="controls">
+  <p>
+    {% ifnotequal cur_page 1 %}
+    <a href="{{ prev_page }}">前へ</a>
+    {% endifnotequal %}
+    {% for pnum, url in pages %}
+    <a href="{{ url }}" {% ifequal pnum cur_page %}class="cur_page"{% endifequal %}>{{ pnum }}</a>
+    {% endfor %}
+    {% ifnotequal cur_page max_page %}
+    <a href="{{ next_page }}">次へ</a>
+    {% endifnotequal %}
+  </p>
+  <p><a href="#title">上へ戻る</a></p>
+</div>
+
 {% endblock body %}

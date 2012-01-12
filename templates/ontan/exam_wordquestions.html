@@ -6,24 +6,29 @@
 <h2>ランダム出題of一問一答</h2>
 <div class="clear"><hr /></div>
 
-<p>
-  <select id="lang_select" onchange="change_lang();">
-    <option>英語を隠す</option>
-    <option>日本語を隠す</option>
-  </select>
-  <!-- <select id="mode_select" onchange="change_mode();">
-    <option>マウスオーバーで答えを表示</option>
+<div class="controls">
+  <p>
+    <select id="lang_select" onchange="change_lang(true);">
+      <option>英語を隠す</option>
+      <option>日本語を隠す</option>
+    </select>
+    <!-- <select id="mode_select" onchange="change_mode();">
+	 <option>マウスオーバーで答えを表示</option>
     <option>答えを入力</option>
-  </select> -->
-  <button type="button" onclick="location.reload(true);"><h3>問題を更新</h3></button>
-</p>
+      </select> -->
+    <button type="button" onclick="location.reload(true);"><h3>問題を更新</h3></button>
+  </p>
+</div>
 
 <table class="qtable" border="1" id="questions_table">
-  <tr><td>問題番号</td><td>日本語</td><td>英語</td></tr>
-  {% for wq in questions %}
-  <tr class="question" id="question{{ wq.number }}" onmouseover="show_word({{ wq.number }}, false);" onmouseout="hide_word({{ wq.number }});"><td class="qnum" onclick="link_to_fill({{ wq.number }})">{{ wq.number }}</td><td>{{ wq.question }}</td><td style="color:#FFFFFF;">{{ wq.answer }}</td></tr>
-  {% endfor %}
+  <tbody>
+    <tr class="section"><td>問題番号<em>(Section)</em></td><td>日本語</td><td>英語</td></tr>
+    {% for wq in questions %}
+    <tr class="question" id="question{{ wq.number }}" onmouseover="show_word({{ wq.number }}, false);" onmouseout="hide_word({{ wq.number }});"><td class="qnum" onclick="link_to_fill({{ wq.number }})">{{ wq.number }}<em>({{ wq.get_section }})</em></td><td>{{ wq.question }}</td><td style="color:#FFFFFF;">{{ wq.answer }}</td></tr>
+    {% endfor %}
+  </tbody>
 </table>
-
-<p><a href="#title">上へ戻る</a></p>
+<div class="controls">
+  <p><a href="#title">上へ戻る</a></p>
+</div>
 {% endblock body %}
