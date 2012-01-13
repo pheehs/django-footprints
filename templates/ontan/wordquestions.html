@@ -1,6 +1,7 @@
 {% extends "ontan/base.html" %}
 
 {% block title %}全単語一覧of一問一答{% endblock %}
+{% ifequal lang "ja" %}{% block body_attr %}onload="change_lang(false, false);"{% endblock %}{% endifequal %}
 
 {% block body %}
 <h2>全単語一覧of一問一答</h2>
@@ -8,9 +9,9 @@
 
 <div class="controls">
   <p>
-    <select id="lang_select" onchange="change_lang();">
-      <option>英語を隠す</option>
-      <option>日本語を隠す</option>
+    <select id="lang_select" onchange="change_lang(false, true);">
+      <option {% ifequal lang "en" %}selected{% endifequal %}>英語を隠す</option>
+      <option {% ifequal lang "ja" %}selected{% endifequal %}>日本語を隠す</option>
     </select>
     <!-- <select id="mode_select" onchange="change_mode();">
 	 <option>マウスオーバーで答えを表示</option>

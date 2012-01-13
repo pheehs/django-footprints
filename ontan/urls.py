@@ -22,5 +22,6 @@ urlpatterns = patterns(
     (r'^userinfo/checkedlist/$', "checkedlist_view"),
     (r'^userinfo/$', "userinfo_view"),
 #    (r'^user/(?P<username>\s+)/$', "others_view"),
+    (r'^change_lang$', "change_lang_view"),
 )
 

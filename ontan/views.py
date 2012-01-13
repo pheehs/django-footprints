@@ -131,6 +131,7 @@ def wordquestions_view(request, pagenum):
             sections[-1]["questions"].append(q)
         return render_to_response("ontan/wordquestions.html",
                                   {"user":request.user,
+                                   "lang":request.session.get("lang", "en"),
                                    "secnums":secnums,
                                    "sections":sections,
                                    "pages":[(p, "/ontan/wordquestions/%d/" % p) for p in xrange(1, maxpage+1)],
@@ -205,6 +206,7 @@ def exam_wordquestions_view(request):
         
     return render_to_response("ontan/exam_wordquestions.html",
                               {"user":request.user,
+                               "lang":request.session.get("lang", "en"),
                                "questions":[WordQuestion.objects.get(pk=pk) for pk in rand_questions_pk]})
 
 def exam_fillquestions_view(request):
@@ -370,3 +372,11 @@ def checkedlist_view(request, cl_pk=None):
                                        "questions":questions, })
     else:
         return HttpResponseRedirect("/ontan/login/?next=%s" % request.path)
+
+def change_lang_view(request):
+    lang = request.GET.get("lang")
+    if lang in ["en", "ja"]:
+        request.session["lang"] = lang
+        return HttpResponse("1")
+    else:
+        return HttpResponse("存在しない言語です。")

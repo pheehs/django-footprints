@@ -5,6 +5,24 @@ questions.js
 
 var hide_mode = "en";
 
+function createXMLHttpRequest() {
+    if (window.XMLHttpRequest) { // other than IE
+	return new XMLHttpRequest();
+    } else if (window.ActiveXObject) {
+	try { //IE6 ~
+	    return new ActiveXObject('Msxml2.XMLHTTP');
+	} catch (e) {
+	    try { //~ IE5
+		return new ActiveXObject('Microsoft.XMLHTTP');
+	    } catch (e2) {
+		return null;
+	    }
+	}
+    } else {
+	return null;
+    }
+}
+
 function onclick_start(action) {
     var form = document.exam;
     
@@ -20,7 +38,7 @@ function link_to_fill(qnum) {
     window.location="/ontan/fillquestions/" + (parseInt((qnum-1) / 100) + 1) + "/#question" + qnum;
 }
 
-function change_lang(is_exam){
+function change_lang(is_exam, session_save){
     var all_tr = document.getElementsByTagName("tr");
 
     if (is_exam){
@@ -45,6 +63,19 @@ function change_lang(is_exam){
 		hide_word(all_tr[i].childNodes[0].innerHTML);
 	    }
 	}
+    }
+    if (session_save){
+	// send change to server
+	// ajax request
+	var request = createXMLHttpRequest();
+	
+	request.onreadystatechange = function () {
+	    if (request.readyState == 4 && request.status == 200) {
+		//console.log("[*] saved lang in session.");
+	    }
+	}
+	request.open('GET', '/ontan/change_lang?lang=' + hide_mode, true);
+	request.send('');
     }
 }
 
