@@ -50,7 +50,7 @@ class CheckedList(models.Model):
     name = models.CharField("リスト名", max_length=20)
     
     def __unicode__(self):
-        return "CheckedList(%s)" % self.name
+        return "CheckedList(%s:%s)" % (self.name, self.user.username)
     
 class CheckedQuestion(models.Model):
     #チェックした問題
