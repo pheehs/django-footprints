@@ -1,7 +1,9 @@
-<html>
-<body>
-<h1>Internal Server Error</h1>
-<hr>
-</body>
-</html>
+{% extends "ontan/base.html" %}
 
+{% block title %}500エラー{% endblock %}
+
+{% block body %}
+<h2>500エラー</h2>
+<h3>サーバーでエラーが発生しました。</h3>
+<h3>そのうち管理人が修正しますので、別のコンテンツをお楽しみください。</h3>
+{% endblock %}

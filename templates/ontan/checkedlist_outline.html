@@ -1,0 +1,21 @@
+{% extends "ontan/base.html" %}
+
+{% block title %}{{ clist.name }}{% endblock %}
+
+{% block body %}
+<h2 id="frame-top">{{ clist.name }}<font size="1em"> - Myリスト</font></h2>
+<!-- <div class="controls">
+  <p>
+    <select id="lang_select" onchange="change_lang(false, true);">
+      <option></option>
+      <option></option>
+    </select>
+  </p>
+</div> -->
+<p>Myリストの表示方法を選んでください</p>
+<div class="which_qblock">
+  <p><a href="/ontan/accounts/profile/checkedlist/{{ clist.pk }}/wordquestions/">一問一答形式</a></p>
+  <p><a href="/ontan/accounts/profile/checkedlist/{{ clist.pk }}/fillquestions/">穴埋め問題形式<a></p>
+</div>
+
+{% endblock body %}

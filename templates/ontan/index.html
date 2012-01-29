@@ -3,23 +3,21 @@
 {% block title %}TOP{% endblock %}
 
 {% block body %}
-<img src="/media/dame.png" alt="音単サボリ　ダメ。ゼッタイ。" width="20%">
 <div>
+  <img src="/media/dame.png" alt="音単サボリ　ダメ。ゼッタイ。" id="topimage">
   <div class="rand_block">
     <h3>ランダム出題</h3>
     <form method="GET" name="exam">
       <select name="range" size="10" multiple="multiple">
 	{% for start_sect,end_sect,selected in tests %}
 	<option value="{{ forloop.counter }}" {% if selected %}selected="selected"{% endif %}>
-	   第{{ forloop.counter }}回小テスト(Section{{ start_sect }}-{{ end_sect }})
+	  第{{ forloop.counter }}回小テスト(Section{{ start_sect }}-{{ end_sect }})
 	</option>
 	{% endfor %}
       </select>
       <p>　出題語数<input name="show" value="20" /></p>
-      <p>　<input type="button" value="一問一答" onclick="onclick_start('/ontan/wordquestions/exam/');" /> <input type="button" value="穴埋め問題" onclick="onclick_start('/ontan/fillquestions/exam/');" /></p>
+      <p>　<input type="button" value="一問一答" onclick="onclick_start('/ontan/question/wordquestions/exam/');" /> <input type="button" value="穴埋め問題" onclick="onclick_start('/ontan/question/fillquestions/exam/');" /></p>
     </form>
   </div>
 </div>
-
-<div class="clear"><hr /></div>
 {% endblock body %}

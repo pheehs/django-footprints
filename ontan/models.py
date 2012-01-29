@@ -18,6 +18,11 @@ class WordQuestion(models.Model):
         return "WordQuestion(%d)" % self.number
     def get_section(self):
         return (self.number - 1) / 25 + 1
+    def get_book(self):
+        if 1 <= self.number <= 2000:
+            return "ontan"
+        elif 2001 <= self.number <= 2500:
+            return "sockohtan"
 
 class FillQuestion(models.Model):
     #穴埋め問題
@@ -32,6 +37,12 @@ class FillQuestion(models.Model):
         return "FillQuestion(%d)" % self.number
     def get_section(self):
         return (self.number - 1) / 25 + 1
+    def get_book(self):
+        if 1 <= self.number <= 2000:
+            return "ontan"
+        elif 2001 <= self.number <= 2500:
+            return "sockohtan"
+
 
 class CheckedList(models.Model):
     #リスト

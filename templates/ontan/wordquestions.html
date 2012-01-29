@@ -1,11 +1,12 @@
 {% extends "ontan/base.html" %}
 
 {% block title %}全単語一覧of一問一答{% endblock %}
-{% ifequal lang "ja" %}{% block body_attr %}onload="change_lang(false, false);"{% endblock %}{% endifequal %}
+{% ifequal lang "ja" %}
+  {% block body_attr %}onload="change_lang(false, false);"{% endblock %}
+{% endifequal %}
 
 {% block body %}
-<h2>全単語一覧of一問一答</h2>
-<div class="clear"><hr /></div>
+<h2 id="frame-top">全単語一覧of一問一答</h2>
 
 <div class="controls">
   <p>
@@ -39,9 +40,15 @@
 <table class="qtable" border="1" id="questions_table">
   <tbody>
     {% for sec in sections %}
-    <tr id="section{{ sec.secnum }}"><td class="section" colspan="3">Section{{ sec.secnum }}</td></tr>
+    <tr id="section{{ sec.secnum }}">
+      <td class="section" colspan="3">Section{{ sec.secnum }}</td>
+    </tr>
     {% for wq in sec.questions %}
-    <tr class="question" id="question{{ wq.number }}" onmouseover="show_word({{ wq.number }}, false);" onmouseout="hide_word({{ wq.number }});"><td class="qnum" onclick="link_to_fill({{ wq.number }})">{{ wq.number }}</td><td>{{ wq.question }}</td><td style="color:#FFFFFF;">{{ wq.answer }}</td></tr>
+    <tr class="question" id="question{{ wq.number }}">
+      <td class="qnum">{{ wq.number }}</td>
+      <td>{{ wq.question }}</td>
+      <td style="color:#FFFFFF;">{{ wq.answer }}</td>
+    </tr>
     {% endfor %}
     {% endfor %}
   </tbody>
@@ -58,7 +65,7 @@
     <a href="{{ next_page }}">次へ</a>
     {% endifnotequal %}
   </p>
-  <p><a href="#title">上へ戻る</a></p>
+  <p><a href="#frame-top">上へ戻る</a></p>
 </div>
 
 {% endblock body %}

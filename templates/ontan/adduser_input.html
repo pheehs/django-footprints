@@ -1,0 +1,30 @@
+{% extends "ontan/base.html" %}
+
+{% block title %}ユーザー登録{% endblock %}
+
+{% block body %}
+<h2>ユーザー登録</h2>
+
+{% if error.top %}<div style="color:#FF0000; font-width:bold;">{{ error.top }}</div>{% endif %}
+<form action="" method="POST">
+  <p style="color:#FF0000; font-width:bold;" required>ユーザー名：
+    <input type="text" name="username">
+    {% if error.username %}<div style="color:#FF0000; font-width:bold;">{{ error.username }}</div>{% endif %}
+  </p>
+  <p style="font-width:bold;">Emailアドレス：
+    <input type="text" name="email">
+    {% if error.email %}<div style="color:#FF0000; font-width:bold;">{{ error.email }}</div>{% endif %}
+  </p>
+  <p style="color:#FF0000; font-width:bold;" required>パスワード：
+    <input type="password" name="password">
+    {% if error.password %}<div style="color:#FF0000; font-width:bold;">{{ error.password }}</div>{% endif %}
+  </p>
+  <p style="color:#FF0000; font-width:bold;" required>パスワード(確認用)：
+    <input type="password" name="password_">
+    {% if error.password_ %}<div style="color:#FF0000; font-width:bold;">{{ error.password_ }}</div>{% endif %}
+  </p>
+
+  <p><input type="submit" value="送信">
+</form>
+
+{% endblock %}

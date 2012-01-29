@@ -5,24 +5,134 @@ questions.js
 
 var hide_mode = "en";
 
-function createXMLHttpRequest() {
-    if (window.XMLHttpRequest) { // other than IE
-	return new XMLHttpRequest();
-    } else if (window.ActiveXObject) {
-	try { //IE6 ~
-	    return new ActiveXObject('Msxml2.XMLHTTP');
-	} catch (e) {
-	    try { //~ IE5
-		return new ActiveXObject('Microsoft.XMLHTTP');
-	    } catch (e2) {
-		return null;
-	    }
+$(function(){
+    $("form#header-login > input[name='username']").val("ユーザー名").css("color", "#CCC").one("focus", function(){
+	$(this).val("").css("color", "#000");
+    }).blur(function(){
+	if($(this).val() == ""){
+	    $(this).val("ユーザー名").css("color", "#CCC").one("focus", function(){
+		$(this).val("").css("color", "#000");
+	    })
 	}
-    } else {
-	return null;
-    }
-}
+    });
+    $("form#header-login > input[name='password']").val("*******").css("color", "#CCC").one("focus", function(){
+	$(this).val("").css("color", "#000");
+    }).blur(function(){
+	if($(this).val() == ""){
+	    $(this).val("*******").css("color", "#CCC").one("focus", function(){
+		$(this).val("").css("color", "#000");
+	    })
+	}
+    });
+    $("form#header-login").submit(function(){
+	var username = $("form#header-login > input[name='username']");
+	var password = $("form#header-login > input[name='password']");
+	if((username.val() == "") || (username.val() == "ユーザー名")){
+	    username.css("border", "1px solid blue");
+	    $("#top-message").text("ユーザー名を入力してください").fadeIn("slow");
+	    return false;
+	}else{
+	    username.css("border", "");
+	}
+	if((password.val() == "") || (password.val() == "*******")){
+	    password.css("border", "1px solid blue");
+	    $("#top-message").text("パスワードを入力してください").fadeIn("slow");
+	    return false;
+	}else{
+	    password.css("border", "");
+	}
+	$.post("/ontan/accounts/login_ajax/", 
+	       {username: username.val(), password: password.val(), csrfmiddlewaretoken: $("#csrfmiddlewaretoken").val()}, 
+	       function(data){
+		   if (data == "1"){
+		       window.location.reload();
+		   }else{
+		       $("#top-message").text(data).fadeIn("slow");
+		   }
+	       });
+	return false;
+    });
+    $(".logout").click(function(){
+	$.get("/ontan/accounts/logout/", null,
+	      function(data){
+		  if (data == "1"){
+		      window.location.reload();
+		  }else{
+		      $("#top-message").text(data).fadeIn("slow");
+		  }
+	      })
+    });
 
+    if (window.location.pathname.indexOf("word") != -1){ // on wordquestion
+	$(".question").dblclick(function(){
+	    $.post("/ontan/add_to_checkedlist", 
+		   {qnum: $(this).attr("id").replace("question", ""),
+		    csrfmiddlewaretoken: getCookie("csrftoken") },
+		   function(data){
+		       $("#top-message").text(data).fadeIn("slow");
+		   } );
+	}).hover(function(){
+	    show_word($(this).attr("id").replace("question", ""), false);
+	    
+	}, function(){
+	    hide_word($(this).attr("id").replace("question", ""));
+	});
+
+	$(".qnum").click(function(){
+	    link_to_fill($(this).parent(".question").attr("id").replace("question", ""));
+	});
+    }else{ // on fillquestion
+	$(".question").dblclick(function(){
+	    $.post("/ontan/add_to_checkedlist", 
+		   {qnum: $(this).attr("id").replace("question", ""),
+		    csrfmiddlewaretoken: getCookie("csrftoken") },
+		   function(data){
+		       $("#top-message").text(data).fadeIn("slow");
+		   } );
+	});
+	$(".qnum").click(function(){
+	    link_to_word($(this).parent(".question").attr("id").replace("question", ""));
+	}).hover(function(){
+	    show_all_fill($(this).parent(".question").attr("id").replace("question", ""));
+	}, function(){
+	    hide_all_fill($(this).parent(".question").attr("id").replace("question", ""));
+	});
+	$(".hid_answer").hover(function(){
+	    show_fill($(this).attr("id").replace("blank", ""));
+	}, function(){
+	    hide_fill($(this).attr("id").replace("blank", ""));
+	});
+    }
+
+/*    $("#header a").click(function(){
+	$("#main-contents").data("href", $(this).attr("href")).hide("fast", function(){
+	    $("#main-contents").load(
+		$(this).data("href")+ " #main-contents", 
+		null, function(){
+		    $("#main-contents").show("fast");
+		});
+	});
+	return false;
+    });*/
+
+});
+/* ref: https://docs.djangoproject.com/en/dev/ref/contrib/csrf/ */
+function getCookie(name) { 
+    var cookieValue = null;
+    if (document.cookie && document.cookie != '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = jQuery.trim(cookies[i]);
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+/* endref */
 function onclick_start(action) {
     var form = document.exam;
     
@@ -31,54 +141,48 @@ function onclick_start(action) {
 }
 
 function link_to_word(qnum) {
-    window.location="/ontan/wordquestions/" + (parseInt((qnum-1) / 100) + 1) + "/#question" + qnum;
+    window.location="/ontan/question/wordquestions/" + (parseInt((qnum-1) / 100) + 1) + "/#question" + qnum;
 }
 
 function link_to_fill(qnum) {
-    window.location="/ontan/fillquestions/" + (parseInt((qnum-1) / 100) + 1) + "/#question" + qnum;
+    window.location="/ontan/question/fillquestions/" + (parseInt((qnum-1) / 100) + 1) + "/#question" + qnum;
 }
 
+function toggle_qtype(){
+    var replaced = location.href.replace("word", "fill");
+    
+    if (replaced == location.href){
+	location.href = replaced.replace("fill", "word");
+    }else {
+	location.href = replaced;
+    }
+}
 function change_lang(is_exam, session_save){
-    var all_tr = document.getElementsByTagName("tr");
-
     if (is_exam){
-	for (var i = 1;i < all_tr.length;i++){
-	    show_word(all_tr[i].childNodes[0].innerHTML.slice(0, all_tr[i].childNodes[0].innerHTML.indexOf("<")), true);
-	}
+	$(".question").each(function(){
+	    show_word($("td:eq(0)", this).html().slice(0, $("td:eq(0)", this).html().indexOf("<")), true);
+	    // "<" for indexOf() is first character of "<em>(section_number)</em>"
+	});
     } else {
-	for (var i = 0;i < all_tr.length;i++){
-	    if (i % 26 != 0){
-		show_word(all_tr[i].childNodes[0].innerHTML, true);
-	    }
-	}
+	$(".question").each(function(){
+	    show_word($("td:eq(0)", this).html(), true);
+	});
     }
     hide_mode = ["en","ja"][document.getElementById("lang_select").selectedIndex];
     if (is_exam){
-	for (var i = 1;i < all_tr.length;i++){
-	    hide_word(all_tr[i].childNodes[0].innerHTML.slice(0, all_tr[i].childNodes[0].innerHTML.indexOf("<")));
-	}
+	$(".question").each(function(){
+	    hide_word($("td:eq(0)", this).html().slice(0, $("td:eq(0)", this).html().indexOf("<")), true);
+	});
     } else {
-	for (var i = 0;i < all_tr.length;i++){
-	    if (i % 26 != 0){
-		hide_word(all_tr[i].childNodes[0].innerHTML);
-	    }
-	}
+	$(".question").each(function(){
+	    hide_word($("td:eq(0)", this).html(), true);
+	});
     }
     if (session_save){
-	// send change to server
-	// ajax request
-	var request = createXMLHttpRequest();
-	
-	request.onreadystatechange = function () {
-	    if (request.readyState == 4 && request.status == 200) {
-		//console.log("[*] saved lang in session.");
-	    }
-	}
-	request.open('GET', '/ontan/change_lang?lang=' + hide_mode, true);
-	request.send('');
+	$.get("/ontan/change_lang", {lang: hide_mode}, null);
     }
 }
-
+/*
 function change_mode() {
     var all_tr = document.getElementsByTagName("tr");
     
@@ -93,62 +197,49 @@ function change_mode() {
         console.log("input_mode")
 	break
     }
-}
+}*/
 
 function show_word(qnum, in_change){
-    var question_tr = document.getElementById("question"+qnum);
-    var childs = question_tr.childNodes;
-    if (in_change == true) { var color = "color:#000000;"; }
-    else {var color = "color:#FF3300;";}
+    if (in_change == true) { var color = "#000000"; }
+    else {var color = "#FF3300";}
 
     switch (hide_mode){
     case "en":
-	childs[2].style.cssText = color;
+	$("#question" + qnum + " > td:eq(2)").css("color", color);
 	break;
     case "ja":
-	childs[1].style.cssText = color;
+	$("#question" + qnum + " > td:eq(1)").css("color", color);
+	break
     }
 }
 
 function hide_word(qnum){
-    var question_tr = document.getElementById("question"+qnum);
-    var childs = question_tr.childNodes;
-
     switch (hide_mode){
     case "en":
-	childs[2].style.cssText = "color:#FFFFFF;";
+	$("#question" + qnum + " > td:eq(2)").css("color", "#FFFFFF")
 	break;
     case "ja":
-	childs[1].style.cssText = "color:#FFFFFF;";
+	$("#question" + qnum + " > td:eq(1)").css("color", "#FFFFFF")
 	break;
     }
-
 }
 
 function show_fill(blankid){
-    var blank_span = document.getElementById("blank"+blankid);
-    
-    blank_span.style.cssText = "color:#FF3300;";
+    $("#blank"+blankid).css("color", "#FF3300");
 }
 
 function hide_fill(blankid){
-    var blank_span = document.getElementById("blank"+blankid);
-    
-    blank_span.style.cssText = "color:#FFFFFF;";
+    $("#blank"+blankid).css("color", "#FFFFFF");
 }
 
 function show_all_fill(qnum){
-    var all_blank = document.getElementById("question"+qnum).getElementsByTagName("span");
-    
-    for (var i = 0; i < all_blank.length; i++){
-	show_fill(all_blank[i].id.replace("blank", ""));
-    }
+    $("#question"+qnum+" span").each(function(){
+	show_fill($(this).attr("id").replace("blank", ""));
+    });
 }
 
 function hide_all_fill(qnum){
-    var all_blank = document.getElementById("question"+qnum).getElementsByTagName("span");
-
-    for (var i = 0; i < all_blank.length; i++){
-	hide_fill(all_blank[i].id.replace("blank", ""));
-    }
+    $("#question"+qnum+" span").each(function(){
+	hide_fill($(this).attr("id").replace("blank", ""));
+    });
 }

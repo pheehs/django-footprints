@@ -1,18 +1,15 @@
 {% extends "ontan/base.html" %}
 
-{% block title %}ランダム出題of穴埋め問題{% endblock %}
+{% block title %}{{ clist.name }}|穴埋め問題{% endblock %}
 
 {% block body %}
-<h2 id="frame-top">ランダム出題of穴埋め問題</h2>
-
+<h2 id="frame-top">{{ clist.name }} / 穴埋め問題<font size="1em"> - Myリスト</font></h2>
 <div class="controls">
-  <p>
-    <button type="button" onclick="location.reload(true);"><h3>問題を更新</h3></button>
-  </p>
   <p>
     <button type="button" onclick="toggle_qtype()"><h4>一問一答に切り替え</h4></button>
   </p>
 </div>
+
 <table class="qtable" border="1">
   <tbody>
     <tr class="section"><td>問題番号<em>(Section)</em></td><td>問題文</td><td>和訳</td></tr>
@@ -33,6 +30,7 @@
     {% endfor %}
   </tbody>
 </table>
+
 <div class="controls">
   <p><a href="#frame-top">上へ戻る</a></p>
 </div>

@@ -7,6 +7,9 @@
   <meta http-equiv="Content-Style-Type" content="text/css" />
   <meta http-equiv="Content-Script-Type" content="text/javascript" />
   <link rel="stylesheet" type="text/css" href="/media/ontan.css">
+
+  <script type="text/javascript" src="http://www.google.com/jsapi"></script>
+  <script type="text/javascript">google.load("jquery", "1.7");</script>
   <script type="text/javascript" src="/media/questions.js"></script>
   {% block head %}{% endblock %}
 <script type="text/javascript">
@@ -24,32 +27,54 @@
 </script>
 </head>
 <body {% block body_attr %}{% endblock %}>
-  <div id="wrap">
-    <h2 id="title">On-tan</h2>
-    <div class="clear"><hr /></div>
-    <div id="topnavi">
-      <ul>
-	<li><a href="/ontan/">トップ</a></li>
-	<li><a>全問題一覧</a>
-	  <ul>
-	    <li><a href="/ontan/wordquestions/1/">一問一答</a></li>
-	    <li><a href="/ontan/fillquestions/1/">穴埋め問題</a></li>
-	  </ul>
-	</li>
-	{% if user.is_authenticated %}
-	<li><a href="/ontan/logout/">ログアウト</a></li>
-	{% else %}
-        <li><a href="/ontan/login/">ログイン</a></li>
-	{% endif %}
-	<li><a href="/ontan/contact/">お問い合わせ</a></li>
-      </ul>
-    </div>
-    <div class="clear"><hr /></div>
-    {% block body %}{% endblock %}
-    <div id="footer">
-      <hr />
-      <p>データ提供：エンジョイ無糖</p>
+<div id="all-wrap">
+  <div id="header" class="clearfix">
+    <div id="header-inner">
+      <h2 id="title">On-tan</h2>
+      <div id="topnavi">
+	<ul>
+	  <li><a href="/ontan/">トップ</a></li>
+	  <li><a href="/ontan/question/">全問題一覧</a>
+	    <ul>
+	      <li><a href="/ontan/question/wordquestions/1/">一問一答</a></li>
+	      <li><a href="/ontan/question/fillquestions/1/">穴埋め問題</a></li>
+	    </ul>
+	  </li>
+	  <li><a href="/ontan/accounts/profile/checkedlist/">Myリスト</a></li>
+	  <li><a href="/ontan/contact/">お問い合わせ</a></li>
+	</ul>
+      </div>
+      <div id="accountnavi">
+	<div>
+	  {% if user.is_authenticated %}
+	    <span id="welcome-message">ようこそ、{{ user.username }}</span>
+	    <a href="#" class="logout">ログアウト</a> / <a href="/ontan/accounts/profile/">ユーザー情報</a>
+	  {% else %}
+	  
+	    <form action="/ontan/accounts/login/" method="POST" id="header-login">
+	      <input type="text" name="username" />
+	      <input type="password" name="password" />
+	      <input type="submit" value="ログイン" />
+	      <a href="/ontan/accounts/adduser/">ユーザー登録</a>
+	    </form>
+	    
+	  {% endif %}
+	</div>
+	<div id="top-message"></div>
+      </div>
+      
+
     </div>
   </div>
+  <div id="main-wrap">
+    <div id="main-contents" class="clearfix">
+      {% block body %}{% endblock %}
+    </div>
+  </div>
+  <div id="footer">
+    <hr />
+    <p>データ提供：エンジョイ無糖</p>
+  </div>
+</div>
 </body>
 </html>

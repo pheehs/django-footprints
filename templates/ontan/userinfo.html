@@ -1,0 +1,34 @@
+{% extends "ontan/base.html" %}
+
+{% block title %}ユーザー情報{% endblock %}
+
+{% block body %}
+<h2 id="frame-top">ユーザー情報</h2>
+
+<div>
+  <dl class="userinfo">
+    <dt>ユーザー名：</dt>
+    <dd>{{ user.username }}</dd>
+    <dt>メールアドレス：</dt>
+    <dd>{{ user.email }}</dd>
+    <dt>アカウント作成：</dt>
+    <dd>{{ user.date_joined|date:"Y/n/j G:i" }}</dd>
+    <dt>最終ログイン：</dt>
+    <dd>{{ user.last_login|date:"Y/n/j G:i" }}</dd>
+  </dl>
+</div>
+
+<table class="listtable" border="1">
+  <tr><td>リスト名</td><td>登録数</td></tr>
+  {% for clist, count in clists %}
+  <tr>
+    <td><a href="/ontan/accounts/profile/checkedlist/{{ clist.pk }}/">{{ clist.name }}</a></td><td>{{ count }}</td>
+  </tr>
+  {% endfor %}
+</table>
+
+<div class="controls">
+  <p><a href="#frame-top">上へ戻る</a></p>
+</div>
+
+{% endblock body %}

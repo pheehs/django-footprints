@@ -1,13 +1,21 @@
 {% extends "ontan/base.html" %}
 
 {% block title %}ログイン{% endblock %}
+
 {% block body %}
-  <h2>ログイン</h2>
+<h2>ログイン</h2>
+
+<div class="controls">
   <p>ユーザー名とパスワードを入力してください</p>
   <p><font color="red">{{ error }}</font></p>
-  <form action="/ontan/login/" method="POST">
-    <p><input type="text" name="username" /></p>
-    <p><input type="password" name="password" /></p>
+  <form action="" method="POST">
+    <p>ユーザー名：<input type="text" name="username" /></p>
+    <p>パスワード：<input type="password" name="password" /></p>
     <p><input type="submit" value="ログイン" /><p>
   </form>
+  <p><a href="/ontan/accounts/adduser/"><b>アカウントの作成はこちら</b></a></p>
+  <p>パスワードを忘れた場合、<br />
+    <a href="/ontan/contact/"><b>お問い合わせフォーム</b></a>からご連絡ください。</p>
+</div>
+
 {% endblock %}

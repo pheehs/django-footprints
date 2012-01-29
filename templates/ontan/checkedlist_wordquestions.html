@@ -1,24 +1,18 @@
 {% extends "ontan/base.html" %}
 
-{% block title %}ランダム出題of一問一答{% endblock %}
+{% block title %}{{ clist.name }}|一問一答{% endblock %}
 {% ifequal lang "ja" %}
-  {% block body_attr %}onload="change_lang(true, false);"{% endblock %}
+  {% block body_attr %}onload="change_lang(false, false);"{% endblock %}
 {% endifequal %}
 
 {% block body %}
-<h2 id="frame-top">ランダム出題of一問一答</h2>
-
+<h2 id="frame-top">{{ clist.name }} / 一問一答<font size="1em"> - Myリスト</font></h2>
 <div class="controls">
   <p>
     <select id="lang_select" onchange="change_lang(true, true);">
       <option {% ifequal lang "en" %}selected{% endifequal %}>英語を隠す</option>
       <option {% ifequal lang "ja" %}selected{% endifequal %}>日本語を隠す</option>
     </select>
-    <!-- <select id="mode_select" onchange="change_mode();">
-	 <option>マウスオーバーで答えを表示</option>
-    <option>答えを入力</option>
-      </select> -->
-    <button type="button" onclick="location.reload(true);"><h3>問題を更新</h3></button>
   </p>
   <p>
     <button type="button" onclick="toggle_qtype();"><h4>穴埋め問題に切り替え</h4></button>
@@ -45,4 +39,5 @@
 <div class="controls">
   <p><a href="#frame-top">上へ戻る</a></p>
 </div>
+
 {% endblock body %}

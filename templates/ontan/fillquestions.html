@@ -3,8 +3,7 @@
 {% block title %}全問題一覧of穴埋め問題{% endblock %}
 
 {% block body %}
-<h2>全問題一覧of穴埋め問題</h2>
-<div class="clear"><hr /></div>
+<h2 id="frame-top">全問題一覧of穴埋め問題</h2>
 
 <div class="controls">
   <p>
@@ -32,11 +31,11 @@
     <tr id="section{{ sec.secnum }}"><td class="section" colspan="3">Section{{ sec.secnum }}</td></tr>
     {% for fq, html_list in sec.questions %}
     <tr class="question" id="question{{ fq.number }}">
-      <td class="qnum" onclick="link_to_word({{ fq.number }})" onmouseover="show_all_fill({{ fq.number }})" onmouseout="hide_all_fill({{ fq.number }})">{{ fq.number }}</td>
+      <td class="qnum">{{ fq.number }}</td>
       <td>
 	{% for blank, words in html_list %}
           {% if blank %}
-            (<span class="hid_anser" id="blank{{ fq.number }}-{{ forloop.counter0 }}" onmouseover="show_fill('{{ fq.number }}-{{ forloop.counter0 }}');" onmouseout="hide_fill('{{ fq.number }}-{{ forloop.counter0 }}');" style="color:#FFFFFF;">{{ words }}</span>)
+            (<span class="hid_answer" id="blank{{ fq.number }}-{{ forloop.counter0 }}" style="color:#FFFFFF;">{{ words }}</span>)
 	  {% else %}
 	    {{ words }}
           {% endif %}
@@ -60,7 +59,7 @@
     <a href="{{ next_page }}">次へ</a>
     {% endifnotequal %}
   </p>
-  <p><a href="#title">上へ戻る</a></p>
+  <p><a href="#frame-top">上へ戻る</a></p>
 </div>
 
 {% endblock body %}
