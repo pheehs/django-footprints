@@ -227,8 +227,6 @@ def exam_wordquestions_view(request):
                         for t in test_list 
                         for i in xrange(first_num + (t-1) * in_test_num, first_num + t * in_test_num) 
                         if first_num <= i <= last_num]
-    print len(all_questions_pk)
-    print all_questions_pk
 
     rand_questions_pk = []
     for i in xrange(show_num):
