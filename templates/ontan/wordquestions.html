@@ -45,7 +45,7 @@
     </tr>
     {% for wq in sec.questions %}
     <tr class="question" id="question{{ wq.number }}">
-      <td class="qnum">{{ wq.number }}</td>
+      <td class="qnum">{{ wq.get_qnum }}</td>
       <td>{{ wq.question }}</td>
       <td style="color:#FFFFFF;">{{ wq.answer }}</td>
     </tr>

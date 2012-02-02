@@ -31,39 +31,38 @@
   <div id="header" class="clearfix">
     <div id="header-inner">
       <h2 id="title"><a style="color:#FFFFFF;" href="/ontan/">On-tan</a></h2>
-      <div id="topnavi">
-	<ul>
-	  <li><a href="/ontan/">トップ</a></li>
-	  <li><a href="/ontan/question/">全問題一覧</a>
-	    <ul>
-	      <li><a href="/ontan/question/wordquestions/1/">一問一答</a></li>
-	      <li><a href="/ontan/question/fillquestions/1/">穴埋め問題</a></li>
-	    </ul>
-	  </li>
-	  <li><a href="/ontan/accounts/profile/checkedlist/">Myリスト</a></li>
-	  <li><a href="/ontan/contact/">お問い合わせ</a></li>
-	</ul>
-      </div>
+
+      <ul id="topnavi" class="clearfix">
+	<li><a href="/ontan/">トップ</a></li>
+	<li><a href="/ontan/question/">全問題一覧</a>
+	  <ul>
+	    <li><a href="/ontan/question/wordquestions/1/">一問一答</a></li>
+	    <li><a href="/ontan/question/fillquestions/1/">穴埋め問題</a></li>
+	  </ul>
+	</li>
+	<li><a href="/ontan/accounts/profile/checkedlist/">Myリスト</a></li>
+	<li><a href="/ontan/contact/">お問い合わせ</a></li>
+      </ul>
       <div id="accountnavi">
 	<div>
 	  {% if user.is_authenticated %}
-	    <span id="welcome-message">ようこそ、{{ user.username }}</span>
-	    <a href="#" class="logout">ログアウト</a> / <a href="/ontan/accounts/profile/">ユーザー情報</a>
+	  <span id="welcome-message">ようこそ、{{ user.username }}</span>
+	  <a href="#" class="logout">ログアウト</a> / <a href="/ontan/accounts/profile/">ユーザー情報</a>
 	  {% else %}
 	  
-	    <form action="/ontan/accounts/login/" method="POST" id="header-login">
-	      <input type="text" name="username" />
-	      <input type="password" name="password" />
-	      <input type="submit" value="ログイン" />
-	      <a href="/ontan/accounts/adduser/">ユーザー登録</a>
-	    </form>
-	    
+	  <form action="/ontan/accounts/login/" method="POST" id="header-login">
+	    <input type="text" name="username" />
+	    <input type="password" name="password" />
+	    <input type="submit" value="ログイン" />
+	    <a href="/ontan/accounts/adduser/">ユーザー登録</a>
+	  </form>
+	  
 	  {% endif %}
 	</div>
 	<div id="top-message"></div>
-      </div>
+    </div>
       
-
+      
     </div>
   </div>
   <div id="main-wrap">

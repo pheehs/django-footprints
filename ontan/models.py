@@ -23,6 +23,11 @@ class WordQuestion(models.Model):
             return "ontan"
         elif 2001 <= self.number <= 2500:
             return "sockohtan"
+    def get_qnum(self):
+        if self.get_book() == "ontan":
+            return self.number
+        elif self.get_book() == "sockohtan":
+            return self.number - 2000
 
 class FillQuestion(models.Model):
     #穴埋め問題
@@ -42,6 +47,11 @@ class FillQuestion(models.Model):
             return "ontan"
         elif 2001 <= self.number <= 2500:
             return "sockohtan"
+    def get_qnum(self):
+        if self.get_book() == "ontan":
+            return self.number
+        elif self.get_book() == "sockohtan":
+            return self.number - 2000
 
 
 class CheckedList(models.Model):

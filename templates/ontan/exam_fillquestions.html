@@ -18,7 +18,7 @@
     <tr class="section"><td>問題番号<em>(Section)</em></td><td>問題文</td><td>和訳</td></tr>
     {% for fq, html_list in questions %}
     <tr class="question" id="question{{ fq.number }}">
-      <td class="qnum">{{ fq.number }}<em>({{ fq.get_section }})</em></td>
+      <td class="qnum">{{ fq.get_qnum }}<em>({{ fq.get_section }})</em></td>
       <td>
 	{% for blank, words in html_list %}
           {% if blank %}

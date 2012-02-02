@@ -6,6 +6,13 @@ questions.js
 var hide_mode = "en";
 
 $(function(){
+    $(".exam_word_button").click(function(){
+	console.log($(this).parent().parent("form"));
+	$(this).parent().parent("form").attr("action", "/ontan/question/wordquestions/exam/").submit();
+    });
+    $(".exam_fill_button").click(function(){
+	$(this).parent().parent("form").attr("action", "/ontan/question/fillquestions/exam/").submit();
+    });
     $("form#header-login > input[name='username']").val("ユーザー名").css("color", "#CCC").one("focus", function(){
 	$(this).val("").css("color", "#000");
     }).blur(function(){
@@ -29,14 +36,14 @@ $(function(){
 	var password = $("form#header-login > input[name='password']");
 	if((username.val() == "") || (username.val() == "ユーザー名")){
 	    username.css("border", "1px solid blue");
-	    $("#top-message").text("ユーザー名を入力してください").fadeIn("slow");
+	    $("#top-message").text("ユーザー名を入力してください").css("display", "block");
 	    return false;
 	}else{
 	    username.css("border", "");
 	}
 	if((password.val() == "") || (password.val() == "*******")){
 	    password.css("border", "1px solid blue");
-	    $("#top-message").text("パスワードを入力してください").fadeIn("slow");
+	    $("#top-message").text("パスワードを入力してください").css("display", "block");
 	    return false;
 	}else{
 	    password.css("border", "");
@@ -47,7 +54,7 @@ $(function(){
 		   if (data == "1"){
 		       window.location.reload();
 		   }else{
-		       $("#top-message").text(data).fadeIn("slow");
+		       $("#top-message").text(data).css("display", "block");
 		   }
 	       });
 	return false;
@@ -58,7 +65,7 @@ $(function(){
 		  if (data == "1"){
 		      window.location.reload();
 		  }else{
-		      $("#top-message").text(data).fadeIn("slow");
+		      $("#top-message").text(data).css("display", "block");
 		  }
 	      })
     });
@@ -69,12 +76,14 @@ $(function(){
 		   {qnum: $(this).attr("id").replace("question", ""),
 		    csrfmiddlewaretoken: getCookie("csrftoken") },
 		   function(data){
-		       $("#top-message").text(data).fadeIn("slow");
+		       $("#top-message").text(data).css("display", "block");
 		   } );
 	}).hover(function(){
+	    $("#top-message").text("ダブルクリックでMyリストに保存").css("display", "block");
 	    show_word($(this).attr("id").replace("question", ""), false);
 	    
 	}, function(){
+	    $("#top-message").css("display", "none");
 	    hide_word($(this).attr("id").replace("question", ""));
 	});
 
@@ -87,8 +96,12 @@ $(function(){
 		   {qnum: $(this).attr("id").replace("question", ""),
 		    csrfmiddlewaretoken: getCookie("csrftoken") },
 		   function(data){
-		       $("#top-message").text(data).fadeIn("slow");
+		       $("#top-message").text(data).css("display", "block");
 		   } );
+	}).hover(function(){
+	    $("#top-message").text("ダブルクリックでMyリストに保存").css("display", "block");
+	}, function(){
+	    $("#top-message").css("display", "none");
 	});
 	$(".qnum").click(function(){
 	    link_to_word($(this).parent(".question").attr("id").replace("question", ""));
@@ -133,13 +146,13 @@ function getCookie(name) {
     return cookieValue;
 }
 /* endref */
-function onclick_start(action) {
+/*function onclick_start(action) {
     var form = document.exam;
     
     form.action = action
     form.submit()
 }
-
+*/
 function link_to_word(qnum) {
     window.location="/ontan/question/wordquestions/" + (parseInt((qnum-1) / 100) + 1) + "/#question" + qnum;
 }

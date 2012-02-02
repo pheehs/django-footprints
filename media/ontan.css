@@ -15,8 +15,9 @@ html>body #all-wrap {
 #header {
    margin: 0 auto;
    height: 5em;
-   background-color: brown;
+   background-color: #ebebeb;/*brown;*/
    width: 100%;
+   color: #666; /**/
 }
 html>body #header {
    position: fixed;
@@ -45,10 +46,10 @@ html>body #header {
    display: block;
    padding: 0.5em 0;
    width: 100%;
-   background-color: brown;
+   background-color: #ebebeb:/*brown;*/
 }
 #topnavi a:hover{
-   background-color: #777777;
+   background-color: #b4b4b4;
 }
 #topnavi li{
    position: relative;
@@ -140,10 +141,10 @@ html>body #footer {
 
 .rand_block{
    float: right;
-   margin: 2em auto;
+   margin: 2em 1px;
    border: 2px double #6A8AD3;
    padding: 5px 5px 5px 5px;
-   width: 40%;
+   width: 30%;
 }
 .which_qblock{
    margin: 0 auto;

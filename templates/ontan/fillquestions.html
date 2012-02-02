@@ -31,7 +31,7 @@
     <tr id="section{{ sec.secnum }}"><td class="section" colspan="3">Section{{ sec.secnum }}</td></tr>
     {% for fq, html_list in sec.questions %}
     <tr class="question" id="question{{ fq.number }}">
-      <td class="qnum">{{ fq.number }}</td>
+      <td class="qnum">{{ fq.get_qnum }}</td>
       <td>
 	{% for blank, words in html_list %}
           {% if blank %}

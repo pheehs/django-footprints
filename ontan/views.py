@@ -17,18 +17,26 @@ ALLOWED_EMAIL = re.compile(r"^([a-zA-Z0-9])+([a-zA-Z0-9\._-])*@([a-zA-Z0-9_-])+(
 
 def index_view(request):
     # Later changeable
-    selected_tests = [18]
+    ontan_selected_tests = [18]
+    sock_selected_tests = [1, 2]
     # data for template
-    tests_data = []
-    for i in xrange(1, WordQuestion.objects.count() / 50 + 1):
-        if i in selected_tests:
-            tests_data.append((i*2-1, i*2, True))
+    ontan_tests_data = []
+    sock_tests_data = []
+    for i in xrange(1, WordQuestion.objects.filter(number__lte=2000).count() / 50 + 1):
+        if i in ontan_selected_tests:
+            ontan_tests_data.append((i*2-1, i*2, True))
         else:
-            tests_data.append((i*2-1, i*2, False))
+            ontan_tests_data.append((i*2-1, i*2, False))
+    for i in xrange(1, WordQuestion.objects.filter(number__gt=2000).count() / 40 + 1):
+        if i in sock_selected_tests:
+            sock_tests_data.append(((i-1)*40+1, i*40, True))
+        else:
+            sock_tests_data.append(((i-1)*40+1, i*40, False))
     
     return render_to_response("ontan/index.html",
                               {"user":request.user,
-                               "tests":tests_data, })
+                               "ontan_tests":ontan_tests_data, 
+                               "sock_tests":sock_tests_data, })
 
 def questions_view(request):
     return render_to_response("ontan/questions.html",
@@ -124,11 +132,11 @@ def post_fillquestion_view(request):
     
 def wordquestions_view(request, pagenum):
     pagenum = int(pagenum)
-    maxpage = (WordQuestion.objects.count()+1) / 100
+    maxpage = (WordQuestion.objects.filter(number__lte=2000).count()+1) / 100
     if maxpage < pagenum:
         raise Http404
     else:
-        questions = WordQuestion.objects.all()[(pagenum-1)*100:pagenum*100]
+        questions = WordQuestion.objects.filter(number__lte=2000)[(pagenum-1)*100:pagenum*100]
         sections = [{"secnum":(pagenum-1)*4+1, "questions":[]}]
         secnums = [(pagenum-1)*4+1, ]
         for q in questions:
@@ -176,9 +184,19 @@ def fillquestions_view(request, pagenum):
                                    "max_page":maxpage})
 
 def exam_wordquestions_view(request):
-    # const;
+    # const
     test_list = []
-    test_num = WordQuestion.objects.count() / 50
+    if request.GET.get("book") == "sockohtan":
+        first_num = 2001 # first qnum
+        last_num = 2500 #last qnum
+        in_test_num = 40 # how many q in each test
+    else:
+        first_num = 1
+        last_num = 2000
+        in_test_num = 50
+
+    wq_num = WordQuestion.objects.filter(number__gte=first_num).filter(number__lte=last_num).count()
+    test_num = wq_num / in_test_num
     # GET parameters
     show_num = request.GET.get("show", "15")
     query = request.GET.copy()
@@ -190,7 +208,7 @@ def exam_wordquestions_view(request):
     except (ValueError, TypeError):
         show_num = 15
     else:
-        if 0 > show_num or show_num > 1000:
+        if 1 > show_num or show_num > wq_num:
             show_num = 15
     # test_range input validation
     for tr in test_range:
@@ -201,11 +219,17 @@ def exam_wordquestions_view(request):
         else:
             if 1 <= tr <= test_num:
                 test_list.append(tr)
-    # validate
-    if show_num > len(test_list) * 25:
+    # another validation
+    if show_num > len(test_list) * in_test_num:
         show_num = 15
         
-    all_questions_pk = [WordQuestion.objects.get(number=i).pk  for t in test_list for i in xrange((t-1)*50+1, t*50+1)]
+    all_questions_pk = [WordQuestion.objects.get(number=i).pk  
+                        for t in test_list 
+                        for i in xrange(first_num + (t-1) * in_test_num, first_num + t * in_test_num) 
+                        if first_num <= i <= last_num]
+    print len(all_questions_pk)
+    print all_questions_pk
+
     rand_questions_pk = []
     for i in xrange(show_num):
         r = random.randint(0, len(all_questions_pk)-1)
@@ -219,7 +243,17 @@ def exam_wordquestions_view(request):
 def exam_fillquestions_view(request):
     # const
     test_list = []
-    test_num = FillQuestion.objects.count() / 50
+    #if request.GET.get("book") == "sockohtan":
+    #    first_num = 2001
+    #    last_num = 2500
+    #    in_test_num = 40
+    #else:
+    first_num = 1
+    last_num = 2000
+    in_test_num = 50
+        
+    fq_num = FillQuestion.objects.filter(number__gte=first_num).filter(number__lte=last_num).count()
+    test_num = fq_num / in_test_num
     # GET parameters
     show_num = request.GET.get("show", "15")
     query = request.GET.copy()
@@ -231,7 +265,7 @@ def exam_fillquestions_view(request):
     except (ValueError, TypeError):
         show_num = 15
     else:
-        if 0 > show_num or show_num > 1000:
+        if 0 > show_num or show_num > fq_num:
             show_num = 15
     # test_range input validation
     for tr in test_range:
@@ -242,7 +276,15 @@ def exam_fillquestions_view(request):
         else:
             if 1 <= tr <= test_num:
                 test_list.append(tr)
-    all_questions_pk = [FillQuestion.objects.get(number=i).pk  for t in test_list for i in xrange((t-1)*50+1, t*50+1)]
+                
+    # another validation
+    if show_num > len(test_list) * in_test_num:
+        show_num = 15
+        
+    all_questions_pk = [FillQuestion.objects.get(number=i).pk  
+                        for t in test_list 
+                        for i in xrange(first_num + (t-1) * in_test_num, first_num + t * in_test_num) 
+                        if first_num <= i <= last_num]
     rand_questions_pk = []
     for i in xrange(show_num):
         r = random.randint(0, len(all_questions_pk)-1)
