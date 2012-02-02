@@ -171,8 +171,11 @@ function toggle_qtype(){
     }
 }
 function change_lang(is_exam, session_save){
-    if (is_exam){
-	$(".question").each(function(){
+    $(".question").each(function(){
+	show_word($(this).attr("id").replace("question", ""), true);
+    });
+/*    if (is_exam){
+	$(".question").each(function(){	    
 	    show_word($("td:eq(0)", this).html().slice(0, $("td:eq(0)", this).html().indexOf("<")), true);
 	    // "<" for indexOf() is first character of "<em>(section_number)</em>"
 	});
@@ -180,9 +183,12 @@ function change_lang(is_exam, session_save){
 	$(".question").each(function(){
 	    show_word($("td:eq(0)", this).html(), true);
 	});
-    }
+    }*/
     hide_mode = ["en","ja"][document.getElementById("lang_select").selectedIndex];
-    if (is_exam){
+    $(".question").each(function(){
+	hide_word($(this).attr("id").replace("question", ""), true);
+    });
+/*    if (is_exam){
 	$(".question").each(function(){
 	    hide_word($("td:eq(0)", this).html().slice(0, $("td:eq(0)", this).html().indexOf("<")), true);
 	});
@@ -190,7 +196,7 @@ function change_lang(is_exam, session_save){
 	$(".question").each(function(){
 	    hide_word($("td:eq(0)", this).html(), true);
 	});
-    }
+    }*/
     if (session_save){
 	$.get("/ontan/change_lang", {lang: hide_mode}, null);
     }
